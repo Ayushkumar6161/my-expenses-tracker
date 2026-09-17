@@ -1,0 +1,14 @@
+{
+  "name": "My Expenses Tracker",
+  "short_name": "My Expenses",
+  "description": "Personal expense, money, savings and borrowing tracker",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f6f8fb",
+  "theme_color": "#0b7a5a",
+  "icons": [
+    {"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
