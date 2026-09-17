@@ -15,7 +15,7 @@ function clean(input) {
 }
 
 export default async function (req, res) {
-  const userId = req.user.id;
+  const userId = req.member.id;
 
   if (req.method === 'GET') {
     const { rows } = await db.query(
