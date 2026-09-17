@@ -3,7 +3,7 @@ import { db } from 'hatchable';
 export const access = 'user';
 export const methods = ['GET', 'PUT', 'POST'];
 
-const empty = { money: [], expenses: [], borrow: [], savings: [], splits: [] };
+const empty = { money: [], expenses: [], borrow: [], savings: [], splits: [], splitGroups: [] };
 
 function clean(input) {
   const d = input && typeof input === 'object' ? input : {};
@@ -12,7 +12,8 @@ function clean(input) {
     expenses: Array.isArray(d.expenses) ? d.expenses : [],
     borrow: Array.isArray(d.borrow) ? d.borrow : [],
     savings: Array.isArray(d.savings) ? d.savings : [],
-    splits: Array.isArray(d.splits) ? d.splits : []
+    splits: Array.isArray(d.splits) ? d.splits : [],
+    splitGroups: Array.isArray(d.splitGroups) ? d.splitGroups : []
   };
 }
 
