@@ -16,7 +16,15 @@ function clean(input) {
 }
 
 export default async function (req, res) {
-  const userId = req.member.id;
+  // App end-user auth and collaborator auth can expose identity differently.
+  // Prefer the authenticated end-user identity, while keeping collaborator
+  // compatibility for older callers. Never dereference a missing identity.
+  const caller = req.user || req.auth?.user || req.member || null;
+  const userId = caller?.id;
+
+  if (!userId) {
+    return res.status(401).json({ error: 'unauthorized', message: 'Signed-in user identity is missing.' });
+  }
 
   if (req.method === 'GET') {
     const { rows } = await db.query(
