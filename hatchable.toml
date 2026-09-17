@@ -1,0 +1,5 @@
+name = "My Expenses Tracker"
+
+[auth]
+enabled = true
+providers = ["email"]
