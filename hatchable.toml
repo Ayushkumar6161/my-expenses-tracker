@@ -3,3 +3,7 @@ name = "My Expenses Tracker"
 [auth]
 enabled = true
 providers = ["email"]
+
+[db.tables.expense_data]
+read = "own"
+write = "own"
