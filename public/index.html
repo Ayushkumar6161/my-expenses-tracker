@@ -943,6 +943,11 @@ html,body{max-width:100%;overflow-x:hidden!important}
  .light-app .add-menu{right:0!important;top:49px!important}
 }
 </style><style id="light-mode-final-parity">
+/* FIX: light-mode add menu must be absolutely positioned like dark mode */
+.light-app .add-menu-wrap{position:relative!important;overflow:visible!important}
+.light-app .add-menu{position:absolute!important;display:none!important;right:0!important;top:calc(100% + 7px)!important;width:185px!important;padding:7px!important;z-index:100!important;box-sizing:border-box!important}
+.light-app .add-menu.show{display:block!important}
+.light-app .add-menu button{display:flex!important;width:100%!important;align-items:center!important;gap:10px!important;box-sizing:border-box!important}
 /* LIGHT MODE FINAL PARITY: mirror DARK MODE structure/sizing; colors stay light */
 .light-app .top h1{font-size:23px!important;font-weight:800!important}
 .light-app .top p{font-size:10px!important}
