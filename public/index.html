@@ -217,6 +217,21 @@
  .dark-app .section-title{font-size:13px!important}
  .dark-app .muted{font-size:9px!important}
 }
+</style><style>
+/* SPLIT PAGE: history is primary, groups compact on the right */
+.dark-app #split>.grid2{grid-template-columns:1.35fr .65fr!important;align-items:start!important}
+.dark-app #split>.grid2>.card:first-child{order:2!important}
+.dark-app #split>.grid2>.card:last-child{order:1!important}
+.dark-app #split>.grid2>.card{height:auto!important;min-height:0!important}
+.dark-app #split>.grid2>.card:first-child{align-self:start!important}
+.dark-app #split>.grid2>.card:last-child{align-self:start!important}
+.dark-app #splitGroups{min-height:0!important}
+.dark-app #splitGroups .row{padding:9px 0!important}
+@media(max-width:1100px){
+ .dark-app #split>.grid2{grid-template-columns:1fr!important}
+ .dark-app #split>.grid2>.card:first-child{order:2!important}
+ .dark-app #split>.grid2>.card:last-child{order:1!important}
+}
 </style><body class="dark-app">
 <div class="app">
 <aside class="sidebar">
