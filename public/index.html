@@ -238,6 +238,33 @@
 .dark-app .edit-btn svg,.dark-app .delete-btn svg{width:13px!important;height:13px!important}
 .dark-app #split .btn{font-size:10px!important;padding:8px 12px!important}
 .dark-app #split .card>.section-head .btn{height:36px!important}
+</style><style>
+/* SPLIT ACTION BUTTONS - COMPACT */
+.dark-app #split .card .btn,
+.dark-app #split .card button[onclick*="edit"],
+.dark-app #split .card button[onclick*="delete"],
+.dark-app #split .card .mini-btn{
+  font-size:10px!important;
+  padding:6px 9px!important;
+  min-height:30px!important;
+  border-radius:7px!important;
+  line-height:1.1!important;
+}
+.dark-app #split .card button[title*="Delete"],
+.dark-app #split .card button[aria-label*="Delete"]{
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:12px!important;
+}
+.dark-app #split .card button[title*="Edit"],
+.dark-app #split .card button[aria-label*="Edit"]{
+  min-width:58px!important;
+}
 </style><body class="dark-app">
 <div class="app">
 <aside class="sidebar">
