@@ -544,4 +544,19 @@ function renderReports(){const a=data.expenses.filter(x=>x.date?.startsWith(sele
 function renderCalendar(){const [y,m]=selectedMonth.split("-").map(Number),first=new Date(y,m-1,1).getDay(),days=new Date(y,m,0).getDate();const title=monthLabel(selectedMonth);const makeGrid=(mini=false)=>{let h=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(x=>`<div class="cal-head">${x}</div>`).join("");for(let i=0;i<first;i++)h+="<div></div>";for(let d=1;d<=days;d++){const ds=`${y}-${pad(m)}-${pad(d)}`;h+=`<div class="cal-day ${ds===localToday()?"today":""}" onclick="showDate('${ds}')"><div class="d">${d}</div></div>`}return h};const full=document.getElementById("calendarGrid");if(full){document.getElementById("calendarTitle").textContent=title;full.innerHTML=makeGrid(false)}const mini=document.getElementById("dashboardCalendar");if(mini){mini.innerHTML=`<div class="mini-cal-title"><button onclick="shiftMonth(-1)">‹</button><b>${title}</b><button onclick="shiftMonth(1)">›</button></div><div class="mini-cal-grid">${makeGrid(true)}</div>`}}
 function showDate(ds){selectedMonth=ds.slice(0,7);nav("expenses");setTimeout(()=>{const el=[...document.querySelectorAll(".day-group")].find(x=>x.textContent.includes(fmtDate(ds)));if(el)el.scrollIntoView({behavior:"smooth",block:"center"})},30)}
 loadCloudData();
-</script><script src="/pwa-register.js"></script></body></html>
+</script><script src="/pwa-register.js"></script><style>
+/* DASHBOARD TYPOGRAPHY CONSISTENCY */
+.dark-app #dashboard .metric-inline .label{font-size:13px!important;line-height:1.25!important;font-weight:700!important;color:#eef4fb!important}
+.dark-app #dashboard .metric-inline .value{font-size:20px!important;line-height:1.1!important;margin:6px 0 3px!important;font-weight:900!important}
+.dark-app #dashboard .metric-inline .muted{font-size:9px!important;line-height:1.35!important}
+.dark-app #dashboard .section-title{font-size:13px!important;line-height:1.2!important}
+.dark-app #dashboard .link{font-size:9px!important}
+.dark-app #dashboard .metric .label{font-size:10px!important;line-height:1.2!important}
+.dark-app #dashboard .metric .value{font-size:23px!important}
+.dark-app #dashboard .metric .muted{font-size:8px!important}
+.dark-app #dashboard .row b,.dark-app #dashboard .amount{font-size:10px!important}
+.dark-app #dashboard th{font-size:9px!important}
+.dark-app #dashboard td{font-size:10px!important}
+.dark-app #dashboard .summary-list>div{font-size:10px!important}
+.dark-app #dashboard .summary-list>div b{font-size:11px!important}
+</style></body></html>
