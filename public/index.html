@@ -608,7 +608,7 @@ async function refreshCloudDataSafe(){
 window.addEventListener("focus",refreshCloudDataSafe);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")refreshCloudDataSafe()});
 setInterval(refreshCloudDataSafe,5000);
-</script>\nloadCloudDataSafe();
+</script><script>loadCloudDataSafe();</script>
 function renderRecent(){const now=new Date();now.setHours(0,0,0,0);const cutoff=new Date(now);cutoff.setDate(cutoff.getDate()-6);const arr=data.expenses.slice().filter(x=>{const d=new Date(String(x.date||"")+"T00:00:00");return !Number.isNaN(d.getTime())&&d>=cutoff&&d<=now}).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||Number(b.id||0)-Number(a.id||0));document.getElementById("recentExpenses").innerHTML=arr.length?arr.map(x=>`<div class="row"><div class="row-left"><div class="icon">${icons[x.category]||"💸"}</div><div><b>${esc(x.category)}</b><div class="muted">${fmtDate(x.date)}${x.note?" · "+esc(x.note):""}</div></div></div><span class="amount redText">−${moneyFmt(x.amount)}</span></div>`).join(""):"<div class='empty'>No expenses in the last 7 days</div>"}
 </script><style>
 /* LIGHT THEME */
