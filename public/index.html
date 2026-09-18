@@ -942,4 +942,162 @@ html,body{max-width:100%;overflow-x:hidden!important}
  .light-app .add-menu-wrap{grid-column:2!important;grid-row:2!important}
  .light-app .add-menu{right:0!important;top:49px!important}
 }
+</style><style id="light-mode-final-parity">
+/* LIGHT MODE FINAL PARITY: mirror DARK MODE structure/sizing; colors stay light */
+.light-app .top h1{font-size:23px!important;font-weight:800!important}
+.light-app .top p{font-size:10px!important}
+.light-app .section-title{font-size:13px!important;font-weight:800!important}
+.light-app .muted{font-size:9px!important}
+.light-app .nav button{font-size:11px!important;font-weight:600!important}
+.light-app .brand b{font-size:16px!important}
+.light-app .brand small{font-size:7px!important}
+.light-app .btn{font-size:10px!important;font-weight:800!important}
+.light-app .link{font-size:9px!important}
+.light-app .metric .label{font-size:10px!important}
+.light-app .metric .value{font-size:23px!important}
+.light-app .field label{font-size:10px!important}
+.light-app .field input,.light-app .field select,.light-app .field textarea,.light-app .filters input,.light-app .filters select{font-size:10px!important}
+.light-app th{font-size:9px!important}
+.light-app td{font-size:10px!important}
+.light-app .row b,.light-app .amount{font-size:10px!important}
+.light-app .empty{font-size:10px!important}
+.light-app .note{font-size:9px!important}
+.light-app .danger{font-size:10px!important}
+.light-app .settings-grid .section-title{font-size:13px!important}
+.light-app .settings-grid .muted{font-size:9px!important;line-height:1.45!important}
+.light-app .settings-grid .btn{font-size:11px!important;padding:9px 14px!important}
+.light-app .settings-grid .danger{padding:11px 12px!important}
+.light-app .monthbox select{font-size:10px!important}
+.light-app .monthbox button{font-size:11px!important}
+.light-app .add-menu button{font-size:10px!important}
+.light-app .calendar-card .cal-head{font-size:8px!important}
+.light-app .calendar-card .cal-day .d{font-size:9px!important}
+.light-app .calendar-card .cal-day .spent{font-size:8px!important}
+
+/* SPLIT: exact same geometry/order as dark */
+.light-app #split>.grid2{grid-template-columns:1.35fr .65fr!important;align-items:start!important}
+.light-app #split>.grid2>.card:first-child{order:2!important;align-self:start!important}
+.light-app #split>.grid2>.card:last-child{order:1!important;align-self:start!important}
+.light-app #split>.grid2>.card{height:auto!important;min-height:0!important}
+.light-app #splitGroups{min-height:0!important}
+.light-app #splitGroups .row{padding:9px 0!important}
+
+/* Compact edit/delete and split controls */
+.light-app .edit-btn,.light-app .delete-btn,.light-app button[onclick*="edit"],.light-app button[onclick*="delete"]{font-size:9px!important;padding:5px 8px!important;min-width:0!important;height:28px!important;border-radius:7px!important}
+.light-app .edit-btn svg,.light-app .delete-btn svg{width:13px!important;height:13px!important}
+.light-app #split .btn{font-size:10px!important;padding:8px 12px!important}
+.light-app #split .card>.section-head .btn{height:36px!important}
+.light-app #split .card .btn,.light-app #split .card button[onclick*="edit"],.light-app #split .card button[onclick*="delete"],.light-app #split .card .mini-btn{font-size:10px!important;padding:6px 9px!important;min-height:30px!important;border-radius:7px!important;line-height:1.1!important}
+.light-app #split .card button[title*="Delete"],.light-app #split .card button[aria-label*="Delete"]{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:12px!important}
+.light-app #split .card button[title*="Edit"],.light-app #split .card button[aria-label*="Edit"]{min-width:58px!important}
+.light-app #splitTable .section-head>div:last-child{display:flex!important;align-items:center!important;gap:7px!important;white-space:nowrap!important}
+.light-app #splitTable .section-head>div:last-child .amount{margin-right:3px!important}
+
+/* Expense chart geometry */
+.light-app .expense-bar-chart{width:100%;display:flex;flex-direction:column;gap:12px;padding:6px 4px 4px}
+.light-app .expense-bar-row{display:grid!important;grid-template-columns:minmax(120px,28%) 1fr 38px!important;align-items:center!important;gap:10px!important;margin:0!important;font-size:10px!important}
+.light-app .expense-bar-label{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}
+.light-app .expense-bar-label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.light-app .expense-bar-label b{font-size:10px;white-space:nowrap}
+.light-app .expense-bar-track{height:12px;border-radius:8px;overflow:hidden;min-width:0}
+.light-app .expense-bar-row small{text-align:right;font-size:9px}
+.light-app .expense-vertical-chart{height:190px;width:100%;display:flex;gap:7px;align-items:stretch;padding:6px 8px 0 0;box-sizing:border-box}
+.light-app .expense-y-axis{width:38px;display:flex;flex-direction:column;justify-content:space-between;padding:2px 0 25px;text-align:right;font-size:8px}
+.light-app .expense-vertical-bars{flex:1;display:flex;align-items:stretch;justify-content:space-around;gap:10px;border-bottom:1px solid #dce3ec;min-width:0}
+.light-app .expense-vcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+.light-app .expense-vvalue{height:20px;font-size:8px;white-space:nowrap}
+.light-app .expense-vbar-wrap{height:135px;width:100%;max-width:34px;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(to top,rgba(20,30,50,.04) 1px,transparent 1px);background-size:100% 45px}
+.light-app .expense-vbar-wrap i{display:block;width:100%;min-height:2px;border-radius:5px 5px 0 0}
+.light-app .expense-vcol>span{display:block;width:100%;height:25px;padding-top:6px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px}
+
+/* Dashboard bottom row: same 3-column structure */
+.light-app #dashboard .bottom-row{display:grid!important;grid-template-columns:1.6fr .85fr .85fr!important;gap:10px!important;margin-top:10px!important;align-items:stretch!important;height:205px!important;min-height:205px!important;overflow:visible!important}
+.light-app #dashboard .bottom-row>.card{min-width:0!important;height:205px!important;min-height:205px!important;padding:14px!important;box-sizing:border-box!important;overflow:hidden!important}
+.light-app #dashboard .bottom-row .section-head{margin-bottom:7px!important}
+.light-app #dashboard .bottom-row .section-title{font-size:13px!important}
+.light-app #dashboard .bottom-row .link{font-size:8px!important}
+.light-app #dashboard .bottom-row .summary-list{gap:12px!important;margin-top:8px!important}
+.light-app #dashboard .bottom-row .summary-list>div{padding:9px 2px!important;display:flex!important;justify-content:space-between!important;align-items:center!important;font-size:10px!important;line-height:1.3!important}
+.light-app #dashboard .bottom-row .summary-list span{font-size:10px!important}
+.light-app #dashboard .bottom-row .summary-list b{font-size:11px!important;font-weight:800!important}
+.light-app #dashboard .bottom-row .empty{padding:25px 4px!important;font-size:8px!important}
+.light-app #dashboard .bottom-row .calendar-card{overflow:hidden!important}
+.light-app #dashboard .bottom-row .calendar-card .mini-calendar{margin-top:0!important}
+.light-app #dashboard .bottom-row .mini-cal-title{height:18px!important;margin:0 0 3px!important;font-size:8px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid{gap:2px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-head{padding:1px 0!important;font-size:6px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-day{min-height:19px!important;height:19px!important;padding:1px!important;box-sizing:border-box!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-day .d{font-size:7px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-day .spent{font-size:4px!important}
+.light-app #dashboardCalendar{width:100%;margin-top:2px}
+.light-app .mini-cal-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;font-size:8px}
+.light-app .mini-cal-title b{font-size:8px}
+.light-app .mini-cal-title button{border:0;background:transparent;font-size:14px;padding:0 3px;cursor:pointer}
+.light-app .mini-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.light-app .mini-cal-grid .cal-head{text-align:center;font-size:6px;padding:2px 0}
+.light-app .mini-cal-grid .cal-day{min-height:23px!important;padding:2px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:4px;cursor:pointer}
+.light-app .mini-cal-grid .cal-day .d{font-size:7px!important}
+.light-app .mini-cal-grid .cal-day .spent{font-size:5px!important;line-height:1}
+.light-app #dashboardCalendar .cal-day .spent{display:none!important}
+
+/* Monthly trend exact sizing */
+.light-app #dashboard .trend-card{overflow:hidden!important}
+.light-app #dashboard .charts-row .trend-card{height:auto!important;min-height:280px!important;overflow:hidden!important}
+.light-app #dashboard .charts-row .trend-card .trend-chart{height:205px!important;min-height:205px!important;max-height:205px!important;overflow:hidden!important;display:flex!important;align-items:center!important}
+.light-app #dashboard .charts-row .trend-card .trend-bars{height:180px!important;max-height:180px!important;overflow:hidden!important}
+.light-app #dashboard .charts-row .trend-card .bars{height:145px!important;max-height:145px!important;overflow:hidden!important}
+.light-app #dashboard .trend-card .trend-bars{position:relative!important;padding-top:25px!important;display:flex!important;align-items:flex-end!important;gap:6px!important}
+.light-app #dashboard .trend-card .trend-legend{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;gap:12px;font-size:8px}
+.light-app #dashboard .trend-card .trend-legend span{display:inline-flex;align-items:center;gap:4px}
+.light-app #dashboard .trend-card .trend-legend i{display:inline-block;width:7px;height:7px;border-radius:2px}
+.light-app #dashboard .trend-card .trend-col{gap:3px!important}
+.light-app #dashboard .trend-card .bars{display:flex!important;align-items:flex-end!important;justify-content:center!important;gap:2px!important}
+.light-app #dashboard .trend-card .bars>i{width:9px!important;max-width:9px!important;border-radius:2px 2px 0 0!important;display:block!important}
+
+/* Light colors for every parity surface */
+.light-app #split .card,.light-app #dashboard .card,.light-app .card{color:#182238!important;background:#fff!important;border-color:#dce3ec!important}
+.light-app .section-title,.light-app #split .section-title,.light-app #dashboard .section-title,.light-app .top h1{color:#182238!important}
+.light-app .expense-bar-label span,.light-app .expense-bar-label b,.light-app .legend-row,.light-app .trend-legend,.light-app .trend-col span{color:#182238!important}
+.light-app .expense-bar-track,.light-app .bar{background:#edf0f5!important}
+.light-app .expense-y-axis,.light-app .expense-vcol>span,.light-app .trend-label,.light-app .mini-cal-grid .cal-head{color:#717c90!important}
+.light-app .expense-vvalue{color:#344054!important}
+.light-app .expense-vertical-bars{border-color:#dce3ec!important}
+.light-app .mini-cal-title{color:#344054!important}
+.light-app .mini-cal-title button{color:#59647a!important}
+.light-app .mini-cal-grid .cal-day{background:#f8f9fb!important;color:#182238!important}
+.light-app .mini-cal-grid .cal-day:hover{background:#eef5ff!important}
+.light-app .mini-cal-grid .cal-day.today{background:#08a878!important;color:#fff!important}
+.light-app #dashboardCalendar .cal-day.today{background:#08a878!important;color:#fff!important;border:1px solid #16d39b!important}
+.light-app .trend-card select,.light-app .chart-actions select{background:#fff!important;color:#182238!important;border-color:#dce3ec!important}
+.light-app .trend-grid{stroke:#dce3ec!important}
+.light-app .quote-card{background:#fff!important;border-color:#dce3ec!important;color:#182238!important}
+.light-app .quote-card b{color:#08a878!important}
+.light-app .mini-btn{background:#eef1f6!important;color:#4d5870!important}
+.light-app #split .note{background:#f4f6fa!important;color:#68748a!important}
+.light-app #split .table-wrap th{color:#717c90!important}
+.light-app #split .table-wrap td{border-color:#edf0f4!important}
+.light-app #split .btn.gray{background:#edf0f5!important;color:#394357!important}
+
+@media(max-width:1100px){
+ .light-app #split>.grid2{grid-template-columns:1fr!important}
+ .light-app #split>.grid2>.card:first-child{order:2!important}
+ .light-app #split>.grid2>.card:last-child{order:1!important}
+ .light-app #dashboard .bottom-row{grid-template-columns:1.4fr .8fr .8fr!important}
+ .light-app .charts-row,.light-app .bottom-row{grid-template-columns:1fr 1fr!important}
+ .light-app .recent-card{grid-column:1/-1!important}
+}
+@media(max-width:650px){
+ .light-app .modal{padding:14px!important}
+ .light-app .modalbox{padding:18px!important;border-radius:14px!important}
+ .light-app .modalbox .formgrid{grid-template-columns:1fr!important}
+ .light-app .modalbox .full{grid-column:auto!important}
+ .light-app #split>.grid2{grid-template-columns:1fr!important}
+ .light-app #dashboard .bottom-row{grid-template-columns:1fr!important}
+ .light-app #dashboard .bottom-row>.card{height:auto!important;min-height:150px!important}
+ .light-app .sidebar{width:260px!important}
+ .light-app .main{margin-left:0!important;width:100%!important;padding:15px!important}
+ .light-app .grid4.dashboard-metrics{grid-template-columns:1fr 1fr!important}
+ .light-app .charts-row,.light-app .dashboard-row:not(.charts-row),.light-app .bottom-row{grid-template-columns:1fr!important}
+ .light-app .recent-card{grid-column:auto!important}
+}
 </style></body></html>
