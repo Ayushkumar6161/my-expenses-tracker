@@ -31,7 +31,8 @@ export default async function (req, res) {
       'SELECT data FROM expense_data WHERE user_id = $1',
       [userId]
     );
-    return res.json(rows[0]?.data || empty);
+    const row = rows[0];
+    return res.json({ data: row?.data || empty, updatedAt: row?.updated_at || null });
   }
 
   const data = clean(req.body);
@@ -41,5 +42,6 @@ export default async function (req, res) {
      ON CONFLICT (user_id) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()` ,
     [userId, JSON.stringify(data)]
   );
-  return res.json({ ok: true, data });
+  const { rows } = await db.query('SELECT updated_at FROM expense_data WHERE user_id = $1', [userId]);
+  return res.json({ ok: true, data, updatedAt: rows[0]?.updated_at || null });
 }
