@@ -289,6 +289,43 @@
 .dark-app .expense-vbar-wrap i{display:block;width:100%;min-height:2px;border-radius:5px 5px 0 0}
 .dark-app .expense-vcol>span{display:block;width:100%;height:25px;padding-top:6px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8c9aad;font-size:8px}
 @media(max-width:650px){.dark-app .expense-vertical-chart{height:170px}.dark-app .expense-vbar-wrap{height:115px}.dark-app .expense-y-axis{font-size:7px;width:32px}}
+</style><style>
+/* DASHBOARD BOTTOM ROW - exact 3-column reference structure */
+.dark-app #dashboard .bottom-row{
+  display:grid!important;
+  grid-template-columns:1.6fr .85fr .85fr!important;
+  gap:10px!important;
+  margin-top:10px!important;
+  align-items:stretch!important;
+}
+.dark-app #dashboard .bottom-row>.card{
+  min-width:0!important;
+  height:165px!important;
+  min-height:165px!important;
+  padding:12px!important;
+}
+.dark-app #dashboard .bottom-row .section-head{margin-bottom:7px!important}
+.dark-app #dashboard .bottom-row .section-title{font-size:11px!important}
+.dark-app #dashboard .bottom-row .link{font-size:8px!important}
+.dark-app #dashboard .bottom-row .summary-list{gap:0!important}
+.dark-app #dashboard .bottom-row .summary-list>div{
+  padding:7px 2px!important;
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  font-size:8px!important;
+  line-height:1.2!important;
+}
+.dark-app #dashboard .bottom-row .summary-list b{font-size:9px!important}
+.dark-app #dashboard .bottom-row .empty{padding:25px 4px!important;font-size:8px!important}
+.dark-app #dashboard .bottom-row .calendar-card .mini-calendar{font-size:8px!important}
+@media(max-width:1100px){
+ .dark-app #dashboard .bottom-row{grid-template-columns:1.4fr .8fr .8fr!important}
+}
+@media(max-width:650px){
+ .dark-app #dashboard .bottom-row{grid-template-columns:1fr!important}
+ .dark-app #dashboard .bottom-row>.card{height:auto!important;min-height:150px!important}
+}
 </style><body class="dark-app">
 <div class="app">
 <aside class="sidebar">
