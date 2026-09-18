@@ -780,4 +780,56 @@ applyTheme();
  .light-app .charts-row,.light-app .dashboard-row:not(.charts-row),.light-app .bottom-row{grid-template-columns:1fr!important}
  .light-app .recent-card{grid-column:auto!important}
 }
+</style><style>
+/* LIGHT MODE FINAL: force the exact same dashboard grid geometry as Dark Mode */
+.light-app #dashboard .charts-row{
+  display:grid!important;
+  grid-template-columns:1.55fr 1fr 1fr!important;
+  gap:8px!important;
+  margin-top:8px!important;
+}
+.light-app #dashboard .dashboard-row:not(.charts-row){
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important;
+  margin-top:8px!important;
+}
+.light-app #dashboard .bottom-row{
+  display:grid!important;
+  grid-template-columns:1.55fr .85fr .85fr!important;
+  gap:8px!important;
+  margin-top:8px!important;
+}
+.light-app #dashboard .chart-card{min-height:172px!important}
+.light-app #dashboard .charts-row>.card,
+.light-app #dashboard .dashboard-row>.card{min-width:0!important}
+.light-app #dashboard .breakdown{grid-template-columns:125px 1fr!important;min-height:125px!important;gap:4px!important}
+.light-app #dashboard .donut{width:104px!important;height:104px!important}
+.light-app #dashboard .donut:after{inset:28px!important}
+.light-app #dashboard .donut-center{font-size:11px!important}
+.light-app #dashboard .donut-center .muted{font-size:6px!important}
+.light-app #dashboard .legend{gap:5px!important}
+.light-app #dashboard .legend-row{font-size:7px!important}
+.light-app #dashboard .dot{width:6px!important;height:6px!important}
+.light-app #dashboard .trend-chart{height:128px!important}
+.light-app #dashboard .trend-bars{height:115px!important;padding:5px 2px 0!important;gap:7px!important}
+.light-app #dashboard .bars{height:88px!important;gap:3px!important}
+.light-app #dashboard .bars i{width:8px!important}
+.light-app #dashboard .trend-col span{font-size:6px!important}
+.light-app #dashboard .bottom-row>.card{height:205px!important;min-height:205px!important}
+@media(min-width:1101px){
+ .light-app #dashboard .charts-row{grid-template-columns:1.55fr 1fr 1fr!important}
+ .light-app #dashboard .bottom-row{grid-template-columns:1.55fr .85fr .85fr!important}
+}
+@media(max-width:1100px){
+ .light-app #dashboard .charts-row{grid-template-columns:1fr 1fr!important}
+ .light-app #dashboard .bottom-row{grid-template-columns:1fr 1fr!important}
+ .light-app #dashboard .recent-card{grid-column:1/-1!important}
+}
+@media(max-width:650px){
+ .light-app #dashboard .charts-row,
+ .light-app #dashboard .dashboard-row:not(.charts-row),
+ .light-app #dashboard .bottom-row{grid-template-columns:1fr!important}
+ .light-app #dashboard .recent-card{grid-column:auto!important}
+}
 </style></body></html>
