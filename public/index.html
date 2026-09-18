@@ -462,7 +462,7 @@
 </div>
 <div class="dashboard-row charts-row">
  <div class="card chart-card expense-chart-card"><div class="section-head"><h3 class="section-title">Expense Breakdown (This Month)</h3><div class="chart-actions"><select id="expenseChartType" onchange="changeExpenseChart(this.value)"><option value="donut">◔ Donut</option><option value="pie">◕ Pie</option><option value="bar">▥ Bar</option></select><button class="link" onclick="nav('reports')">View Report</button></div></div><div class="breakdown" id="expenseBreakdownArea"><div class="donut"><div class="donut-center" id="donutCenter"><span>₹0</span><span class="muted">Total</span></div></div><div class="legend" id="legend"></div></div></div>
- <div class="card chart-card trend-card"><div class="section-head"><h3 class="section-title">Monthly Trend</h3><select id="trendType" onchange="renderTrend()"><option value="bar">▥ Bar</option><option value="line">⌁ Line</option></select></div><div id="monthlyTrend" class="trend-chart"></div></div>
+ <div class="card chart-card trend-card"><div class="section-head"><h3 class="section-title">Monthly Trend</h3><select id="trendType" onchange="renderTrend()"><option value="bar">▥ Bar</option></select></div><div id="monthlyTrend" class="trend-chart"></div></div>
  <div class="card chart-card recent-card"><div class="section-head"><h3 class="section-title">Recent Expenses</h3><button class="link" onclick="nav('expenses')">View All</button></div><div id="recentExpenses" class="list"></div></div>
 </div>
 <div class="dashboard-row">
