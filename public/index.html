@@ -1134,4 +1134,26 @@ html,body{max-width:100%;overflow-x:hidden!important}
   .light-app #dashboard .bottom-row>.calendar-card{grid-column:2!important;grid-row:1!important;width:auto!important}
   .light-app #dashboard .bottom-row>.card:nth-child(3){grid-column:3!important;grid-row:1!important;width:auto!important}
 }
-</style></body></html>
+</style><script>
+(function(){
+  function syncLightDashboardLayout(){
+    var row=document.querySelector('#dashboard .bottom-row');
+    if(!row)return;
+    if(document.body.classList.contains('light-app') && window.innerWidth>1100){
+      row.style.setProperty('display','grid','important');
+      row.style.setProperty('grid-template-columns','1.89fr 1fr 1fr','important');
+      row.style.setProperty('grid-template-rows','205px','important');
+    }else if(window.innerWidth<=1100){
+      row.style.removeProperty('grid-template-columns');
+      row.style.removeProperty('grid-template-rows');
+    }
+  }
+  window.addEventListener('load',syncLightDashboardLayout);
+  window.addEventListener('resize',syncLightDashboardLayout);
+  if(window.MutationObserver){
+    new MutationObserver(syncLightDashboardLayout).observe(document.body,{attributes:true,attributeFilter:['class']});
+  }
+  setTimeout(syncLightDashboardLayout,100);
+  setTimeout(syncLightDashboardLayout,500);
+})();
+</script></body></html>
