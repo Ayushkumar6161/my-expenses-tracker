@@ -447,7 +447,7 @@
     <button data-page="calendar">▦ &nbsp; Calendar</button>
     <div class="sep"></div><button data-page="settings">⚙ &nbsp; Settings</button>
   </div>
-  <div class="sidebar-bottom"><div class="dark-toggle"><span>◔</span><span>Dark Mode</span><button type="button" class="toggle-on" aria-label="Dark mode"><i></i></button></div><div class="profile"><div class="avatar" id="profileAvatar">A</div><div><b id="profileName">Account</b></div><span class="profile-more">•••</span></div></div>
+  <div class="sidebar-bottom"><div class="dark-toggle"><span>◔</span><span>Dark Mode</span><button type="button" class="toggle-on" id="themeToggle" aria-label="Toggle dark mode" onclick="toggleTheme()"><i></i></button></div><div class="profile"><div class="avatar" id="profileAvatar">A</div><div><b id="profileName">Account</b></div><span class="profile-more">•••</span></div></div>
 </aside>
 <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
 <main class="main">
@@ -545,6 +545,55 @@ function renderCalendar(){const [y,m]=selectedMonth.split("-").map(Number),first
 function showDate(ds){selectedMonth=ds.slice(0,7);nav("expenses");setTimeout(()=>{const el=[...document.querySelectorAll(".day-group")].find(x=>x.textContent.includes(fmtDate(ds)));if(el)el.scrollIntoView({behavior:"smooth",block:"center"})},30)}
 loadCloudData();
 function renderRecent(){const now=new Date();now.setHours(0,0,0,0);const cutoff=new Date(now);cutoff.setDate(cutoff.getDate()-6);const arr=data.expenses.slice().filter(x=>{const d=new Date(String(x.date||"")+"T00:00:00");return !Number.isNaN(d.getTime())&&d>=cutoff&&d<=now}).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||Number(b.id||0)-Number(a.id||0));document.getElementById("recentExpenses").innerHTML=arr.length?arr.map(x=>`<div class="row"><div class="row-left"><div class="icon">${icons[x.category]||"💸"}</div><div><b>${esc(x.category)}</b><div class="muted">${fmtDate(x.date)}${x.note?" · "+esc(x.note):""}</div></div></div><span class="amount redText">−${moneyFmt(x.amount)}</span></div>`).join(""):"<div class='empty'>No expenses in the last 7 days</div>"}
+</script><style>
+/* LIGHT THEME */
+body.light-app{background:#f5f7fb!important;color:#182238!important}
+.light-app .sidebar{background:#fff!important;border-color:#dce3ec!important}
+.light-app .brand b,.light-app .section-title,.light-app .top h1{color:#182238!important}
+.light-app .brand small,.light-app .muted,.light-app .top p{color:#6b778c!important}
+.light-app .nav button{color:#4f5a70!important}
+.light-app .nav button:hover,.light-app .nav button.active{background:#eaf3ff!important;color:#1677ed!important}
+.light-app .nav .sep{background:#dce3ec!important}
+.light-app .main{background:#f5f7fb!important}
+.light-app .card{background:#fff!important;border-color:#dce3ec!important;color:#182238!important;box-shadow:0 2px 8px rgba(20,30,50,.05)!important}
+.light-app .monthbox,.light-app .monthbox button,.light-app .monthbox select{background:#fff!important;color:#182238!important;border-color:#dce3ec!important}
+.light-app .monthbox select{color-scheme:light}
+.light-app .icon{background:#eef4ff!important}
+.light-app .row{border-color:#edf0f4!important}
+.light-app th{color:#717c90!important}
+.light-app td{border-color:#edf0f4!important}
+.light-app .note{background:#f4f6fa!important;color:#68748a!important}
+.light-app .filters input,.light-app .filters select,.light-app .field input,.light-app .field select,.light-app .field textarea{background:#fff!important;color:#182238!important;border-color:#dce2ea!important}
+.light-app .donut:after{background:#fff!important}
+.light-app .cal-day{background:#f8f9fb!important;color:#182238!important}
+.light-app .cal-day:hover{background:#eef5ff!important}
+.light-app .bar{background:#edf0f5!important}
+.light-app .add-main{background:#08d69a!important;color:#06150f!important}
+.light-app .add-menu{background:#fff!important;border:1px solid #dce3ec!important;box-shadow:0 18px 50px rgba(20,30,50,.16)!important}
+.light-app .add-menu button{color:#182238!important}
+.light-app .add-menu button:hover{background:#f1f5f9!important}
+.light-app .chart-actions select,.light-app .trend-card select{background:#fff!important;color:#182238!important;border-color:#dce3ec!important}
+.light-app .quote-card{background:#fff!important;border-color:#dce3ec!important;color:#182238!important}
+.light-app .toggle-on{background:#cbd5e1!important}
+.light-app .toggle-on i{margin-left:0!important}
+.light-app .profile{border-color:#dce3ec!important}
+.light-app .profile .avatar{background:#e8edf5!important;color:#344054!important}
+.light-app .profile-more{color:#7f8da3!important}
+.light-app .dark-toggle{color:#6b778c!important}
+</style><script>
+function applyTheme(){
+  const dark=localStorage.getItem("myExpensesTheme")!=="light";
+  document.body.classList.toggle("dark-app",dark);
+  document.body.classList.toggle("light-app",!dark);
+  const t=document.getElementById("themeToggle");
+  if(t){t.classList.toggle("toggle-on",dark);t.setAttribute("aria-label",dark?"Switch to light mode":"Switch to dark mode");const i=t.querySelector("i");if(i)i.style.marginLeft=dark?"12px":"0"}
+}
+function toggleTheme(){
+  const dark=document.body.classList.contains("dark-app");
+  localStorage.setItem("myExpensesTheme",dark?"light":"dark");
+  applyTheme();
+}
+applyTheme();
 </script><script src="/pwa-register.js"></script><style>
 /* DASHBOARD TYPOGRAPHY CONSISTENCY */
 .dark-app #dashboard .metric-inline .label{font-size:13px!important;line-height:1.25!important;font-weight:700!important;color:#eef4fb!important}
