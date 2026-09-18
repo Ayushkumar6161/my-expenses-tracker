@@ -163,7 +163,23 @@
  .dark-app .grid4.dashboard-metrics{grid-template-columns:1fr 1fr!important}
  .dark-app .charts-row,.dark-app .dashboard-row:not(.charts-row),.dark-app .bottom-row{grid-template-columns:1fr!important}
  .dark-app .recent-card{grid-column:auto!important}
-}</style></head>
+}</style><style>/* MODAL FIX - match dark reference */
+.dark-app .modal{background:rgba(3,9,16,.78)!important;backdrop-filter:blur(5px)!important}
+.dark-app .modalbox{background:#111a24!important;color:#eef4fb!important;border:1px solid #2b3b4d!important;border-radius:16px!important;box-shadow:0 25px 70px rgba(0,0,0,.55)!important}
+.dark-app .modal-head h3,.dark-app .modalbox h3{color:#eef4fb!important}
+.dark-app .modalbox .field label{color:#b8c3d2!important}
+.dark-app .modalbox .muted{color:#8c9aad!important}
+.dark-app .modalbox input,.dark-app .modalbox select,.dark-app .modalbox textarea{background:#0d1721!important;color:#eef4fb!important;border:1px solid #304154!important;color-scheme:dark!important}
+.dark-app .modalbox input::placeholder,.dark-app .modalbox textarea::placeholder{color:#68788c!important}
+.dark-app .modalbox input:focus,.dark-app .modalbox select:focus,.dark-app .modalbox textarea:focus{border-color:#1677ed!important;box-shadow:0 0 0 2px rgba(22,119,237,.18)!important}
+.dark-app .modalbox .close{background:#243140!important;color:#aebaca!important}
+.dark-app .modalbox .close:hover{background:#304052!important;color:#fff!important}
+.dark-app .modalbox .save,.dark-app .modalbox button.btn:not(.gray):not(.danger-btn){color:#fff!important}
+.dark-app .modalbox .btn.gray{background:#263442!important;color:#d7e0eb!important}
+.dark-app .deletebox .delete-icon{background:#3a1e24!important}
+.dark-app .deletebox .delete-text{color:#aab6c5!important}
+.dark-app .deletebox .danger-btn{background:#ff626b!important;color:#fff!important}
+@media(max-width:650px){.dark-app .modal{padding:14px}.dark-app .modalbox{padding:18px;border-radius:14px!important}.dark-app .modalbox .formgrid{grid-template-columns:1fr!important}.dark-app .modalbox .full{grid-column:auto!important}}</style></head>
 <body class="dark-app">
 <div class="app">
 <aside class="sidebar">
