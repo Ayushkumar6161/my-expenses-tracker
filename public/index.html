@@ -1105,4 +1105,16 @@ html,body{max-width:100%;overflow-x:hidden!important}
  .light-app .charts-row,.light-app .dashboard-row:not(.charts-row),.light-app .bottom-row{grid-template-columns:1fr!important}
  .light-app .recent-card{grid-column:auto!important}
 }
+</style><style id="light-mode-bottom-row-final-fix">
+/* FINAL: keep Dashboard bottom row identical to Dark Mode at desktop/tablet widths */
+.light-app #dashboard .bottom-row{display:grid!important;grid-template-columns:1.6fr .85fr .85fr!important;gap:10px!important;align-items:stretch!important;height:205px!important;min-height:205px!important;overflow:visible!important}
+.light-app #dashboard .bottom-row>.card{height:205px!important;min-height:205px!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important}
+@media(max-width:1100px) and (min-width:651px){
+  .light-app #dashboard .bottom-row{grid-template-columns:1.4fr .8fr .8fr!important}
+  .light-app #dashboard .bottom-row>.card{height:205px!important;min-height:205px!important}
+}
+@media(max-width:650px){
+  .light-app #dashboard .bottom-row{grid-template-columns:1fr!important;height:auto!important;min-height:0!important}
+  .light-app #dashboard .bottom-row>.card{height:auto!important;min-height:150px!important}
+}
 </style></body></html>
