@@ -832,4 +832,23 @@ applyTheme();
  .light-app #dashboard .bottom-row{grid-template-columns:1fr!important}
  .light-app #dashboard .recent-card{grid-column:auto!important}
 }
+</style><style>
+/* LIGHT MODE RESPONSIVE OVERFLOW FIX */
+html,body{max-width:100%;overflow-x:hidden!important}
+.light-app .main{overflow-x:hidden!important;max-width:100vw!important}
+.light-app #dashboard{min-width:0!important;max-width:100%!important;overflow-x:hidden!important}
+.light-app #dashboard .dashboard-row,
+.light-app #dashboard .grid4{min-width:0!important;max-width:100%!important}
+.light-app #dashboard .dashboard-row>.card,
+.light-app #dashboard .grid4>.card{min-width:0!important;max-width:100%!important}
+.light-app .top{min-width:0!important;max-width:100%!important}
+.light-app .top-actions{min-width:0!important;max-width:100%!important}
+.light-app .add-menu{max-width:calc(100vw - 24px)!important;right:0!important}
+@media(max-width:650px){
+  .light-app .main{padding:15px!important}
+  .light-app .top-actions{width:100%!important;display:grid!important;grid-template-columns:1fr auto!important;gap:8px!important}
+  .light-app .monthbox{grid-column:1/-1!important;width:100%!important;min-width:0!important}
+  .light-app .add-menu-wrap{grid-column:2!important;grid-row:2!important}
+  .light-app .add-menu{right:0!important;top:49px!important;width:185px!important}
+}
 </style></body></html>
