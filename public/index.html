@@ -397,6 +397,31 @@
 .dark-app #dashboard .trend-card .bars{height:92px!important;max-height:92px!important;display:flex!important;align-items:flex-end!important;overflow:hidden!important}
 .dark-app #dashboard .trend-card .trend-col span{height:12px!important;line-height:12px!important;flex:none!important}
 .dark-app #dashboard .quote-card{margin-bottom:0!important}
+</style><style>
+/* MONTHLY TREND CARD - restore full chart height without overflow */
+.dark-app #dashboard .charts-row .trend-card{
+  height:auto!important;
+  min-height:280px!important;
+  overflow:hidden!important;
+}
+.dark-app #dashboard .charts-row .trend-card .trend-chart{
+  height:205px!important;
+  min-height:205px!important;
+  max-height:205px!important;
+  overflow:hidden!important;
+  display:flex!important;
+  align-items:center!important;
+}
+.dark-app #dashboard .charts-row .trend-card .trend-bars{
+  height:180px!important;
+  max-height:180px!important;
+  overflow:hidden!important;
+}
+.dark-app #dashboard .charts-row .trend-card .bars{
+  height:145px!important;
+  max-height:145px!important;
+  overflow:hidden!important;
+}
 </style><body class="dark-app">
 <div class="app">
 <aside class="sidebar">
