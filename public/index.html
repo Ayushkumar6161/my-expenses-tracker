@@ -560,12 +560,12 @@
  <div class="card chart-card trend-card"><div class="section-head"><h3 class="section-title">Monthly Trend</h3><select id="trendType" onchange="renderTrend()"><option value="bar">▥ Bar Chart</option></select></div><div id="monthlyTrend" class="trend-chart"></div></div>
  <div class="card chart-card recent-expenses-card"><div class="section-head"><h3 class="section-title">Recent Expenses</h3><button class="link" onclick="nav('expenses')">View All</button></div><div id="recentExpenses" class="list"></div></div>
 </div>
-<div class="dashboard-row insights-row">
+<div class="dashboard-row bottom-row">
+ <div class="card recent-transactions-dashboard"><div class="section-head"><h3 class="section-title">Recent Transactions</h3><button class="link" onclick="nav('recentTransactions')">View All</button></div><div id="recentTransactionsDashboard" class="list"></div></div>
  <div class="card calendar-card"><div class="section-head"><h3 class="section-title">Calendar</h3><button class="link" onclick="nav('calendar')">View All</button></div><div id="dashboardCalendar" class="mini-calendar"></div></div>
  <div class="card category-insights-card"><div class="section-head"><h3 class="section-title">Category Insights</h3><button class="link" onclick="nav('reports')">View All</button></div><div id="categoryInsights"></div></div>
 </div>
-<div class="dashboard-row bottom-row">
- <div class="card"><div class="section-head"><h3 class="section-title">Today's Expenses</h3><button class="link" onclick="nav('expenses')">View All</button></div><div id="todayTable"></div></div>
+<div class="dashboard-row summary-row">
  <div class="card monthly-summary-card"><div class="section-head"><h3 class="section-title">Monthly Summary</h3><span class="muted" id="summaryMonthLabel"></span></div><div class="summary-compact"><div><span>Opening Balance</span><b class="blueText" id="summaryOpening">₹0</b></div><div><span>Money Received</span><b class="greenText" id="summaryReceived">₹0</b></div><div><span>Total Expenses</span><b class="redText" id="summaryExpenses">₹0</b></div><div><span>Left Amount</span><b class="blueText" id="summaryLeft">₹0</b></div></div><div class="summary-extra"><span>Split Pending <b id="summarySplitPending">₹0</b></span><span>Get From Pending <b id="summaryGetPending">₹0</b></span><span>Borrow From Pending <b id="summaryBorrowPending">₹0</b></span><span>Savings <b id="summarySavingsVisible">₹0</b></span></div></div>
 </div>
 <div class="quote-card">🌱 <span>“Track your money today for a better tomorrow.”</span><b>Stay Consistent ↗</b><span id="summarySavings" style="display:none">₹0</span><span id="summaryBorrow" style="display:none">₹0</span></div>
@@ -772,7 +772,7 @@ window.addEventListener("focus",refreshCloudDataSafe);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")refreshCloudDataSafe()});
 setInterval(refreshCloudDataSafe,5000);
 loadCloudDataSafe();
-function renderRecent(){const all=(data.expenses||[]).filter(x=>monthOf(x.date)===selectedMonth).map(x=>({date:String(x.date||""),id:Number(x.id||0),label:x.category||"Expense",sub:fmtDate(x.date)+(x.note?" · "+x.note:"")+" · Expense",amount:-Math.abs(Number(x.amount||0)),icon:icons[x.category]||"💸",cls:"redText"})).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,5);const el=document.getElementById("recentExpenses");if(!el)return;el.innerHTML=all.length?all.map(x=>`<div class="transaction-row"><div class="row-left"><div class="icon transaction-icon">${x.icon}</div><div class="transaction-copy"><b>${esc(x.label)}</b><div class="muted">${esc(x.sub)}</div></div></div><span class="amount redText">−${moneyFmt(Math.abs(x.amount))}</span></div>`).join(""):"<div class='empty'>No expenses this month</div>"}function renderCategoryInsights(){const el=document.getElementById("categoryInsights");if(!el)return;const arr=(data.expenses||[]).filter(x=>monthOf(x.date)===selectedMonth);const total=sum(arr);const cats=[...new Set(arr.map(x=>x.category).filter(Boolean))].map(c=>({c,v:sum(arr.filter(x=>x.category===c))})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,6);el.innerHTML=cats.length?cats.map((x,i)=>{const pct=total?Math.round(x.v/total*100):0;return `<div class="insight-row"><div class="insight-name"><span class="insight-dot insight-${i%5}">${icons[x.c]||"•"}</span><b>${esc(x.c)}</b></div><div class="insight-track"><i style="width:${pct}%"></i></div><span class="insight-pct">${pct}%</span><strong>${moneyFmt(x.v)}</strong></div>`}).join(""):"<div class='empty'>No category spending yet</div>"}
+function renderRecent(){const all=(data.expenses||[]).filter(x=>monthOf(x.date)===selectedMonth).map(x=>({date:String(x.date||""),id:Number(x.id||0),label:x.category||"Expense",sub:fmtDate(x.date)+(x.note?" · "+x.note:"")+" · Expense",amount:-Math.abs(Number(x.amount||0)),icon:icons[x.category]||"💸",cls:"redText"})).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,5);const html=all.length?all.map(x=>`<div class="transaction-row"><div class="row-left"><div class="icon transaction-icon">${x.icon}</div><div class="transaction-copy"><b>${esc(x.label)}</b><div class="muted">${esc(x.sub)}</div></div></div><span class="amount redText">−${moneyFmt(Math.abs(x.amount))}</span></div>`).join(""):"<div class='empty'>No expenses this month</div>";const el=document.getElementById("recentExpenses");if(el)el.innerHTML=html;const tx=document.getElementById("recentTransactionsDashboard");if(tx)tx.innerHTML=html}function renderCategoryInsights(){const el=document.getElementById("categoryInsights");if(!el)return;const arr=(data.expenses||[]).filter(x=>monthOf(x.date)===selectedMonth);const total=sum(arr);const cats=[...new Set(arr.map(x=>x.category).filter(Boolean))].map(c=>({c,v:sum(arr.filter(x=>x.category===c))})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,6);el.innerHTML=cats.length?cats.map((x,i)=>{const pct=total?Math.round(x.v/total*100):0;return `<div class="insight-row"><div class="insight-name"><span class="insight-dot insight-${i%5}">${icons[x.c]||"•"}</span><b>${esc(x.c)}</b></div><div class="insight-track"><i style="width:${pct}%"></i></div><span class="insight-pct">${pct}%</span><strong>${moneyFmt(x.v)}</strong></div>`}).join(""):"<div class='empty'>No category spending yet</div>"}
 </script><style>
 /* LIGHT THEME */
 body.light-app{background:#f5f7fb!important;color:#182238!important}
@@ -1428,8 +1428,8 @@ html,body{max-width:100%;overflow-x:hidden!important}
 #dashboard .dash-tabs button{background:transparent;color:#93a0b4;border:1px solid transparent;border-radius:18px;padding:6px 9px;font-size:9px}
 #dashboard .dash-tabs button.active{border-color:#08d69a;color:#eef4fb;background:#102c2b}
 #dashboard .chart-more{width:30px;height:30px;border-radius:50%;background:#172331;color:#aeb9c7;border:1px solid #2b3b4d}
-#dashboard .insights-row{grid-template-columns:1fr 1fr!important}
-#dashboard .insights-row>.card{min-height:300px!important;border-radius:16px!important}
+#dashboard .bottom-row{grid-template-columns:1.55fr 1.45fr 1.25fr!important}
+#dashboard .bottom-row>.card{min-height:300px!important;border-radius:16px!important}
 #dashboard .transaction-row{display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #253241;background:#101b26;border-radius:9px;margin:3px 0}
 #dashboard .transaction-icon{width:31px;height:31px;border-radius:9px}
 #dashboard .transaction-copy b{font-size:10px}.dashboard-hidden-data{display:none!important}
@@ -1444,9 +1444,8 @@ html,body{max-width:100%;overflow-x:hidden!important}
 #dashboard .summary-compact span{font-size:7px;color:#a6b2c1}.summary-compact b{font-size:13px}
 #dashboard .summary-extra{display:flex;gap:10px;flex-wrap:wrap;padding-top:10px;font-size:7px;color:#8e9caf}
 #dashboard .summary-extra b{color:#dfe7f1;margin-left:3px}
-#dashboard .bottom-row{grid-template-columns:1fr!important}
-#dashboard .bottom-row>.card:first-child{display:none}
-@media(max-width:1100px){.dashboard-search{min-width:190px}#dashboard .insights-row{grid-template-columns:1.2fr 1fr!important}#dashboard .category-insights-card{grid-column:1/-1}}
-@media(max-width:650px){.dashboard-search{min-width:0;width:100%}#dashboard .dashboard-hero{align-items:flex-start;flex-direction:column}#dashboard .dashboard-hero h1{font-size:20px}.hero-quote,.top-avatar,.top-icon-btn{display:none}#dashboard .insights-row{grid-template-columns:1fr!important}#dashboard .category-insights-card{grid-column:auto}#dashboard .summary-compact{grid-template-columns:1fr 1fr}#dashboard .bottom-row{display:none!important}}
+#dashboard .summary-row{grid-template-columns:1fr!important}
+@media(max-width:1100px){.dashboard-search{min-width:190px}#dashboard .bottom-row{grid-template-columns:1.2fr 1fr!important}}
+@media(max-width:650px){.dashboard-search{min-width:0;width:100%}#dashboard .dashboard-hero{align-items:flex-start;flex-direction:column}#dashboard .dashboard-hero h1{font-size:20px}.hero-quote,.top-avatar,.top-icon-btn{display:none}#dashboard .bottom-row{grid-template-columns:1fr!important}#dashboard .summary-compact{grid-template-columns:1fr 1fr}}
 .light-app .dashboard-search{background:#fff;border-color:#dce3ec}.light-app .dashboard-search input{color:#182238}.light-app .top-icon-btn{background:#fff;border-color:#dce3ec;color:#344054}.light-app #dashboard .transaction-row{background:#f7f9fb;border-color:#e5e9ef}.light-app #dashboard .insight-row{border-color:#e5e9ef}.light-app #dashboard .insight-track{background:#e7edf3}.light-app #dashboard .summary-compact>div{background:#f5f8fa;border-color:#e0e7ee}.light-app #dashboard .summary-extra b{color:#344054}
 </style></body></html>
