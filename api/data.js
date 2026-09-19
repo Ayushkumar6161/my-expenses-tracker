@@ -45,6 +45,7 @@ export default async function (req, res) {
     [userId, JSON.stringify(data)]
   );
   const row = result.rows[0];
-  console.log('expense_data PUT', { userId, inserted: !!row, counts: { money:data.money.length, expenses:data.expenses.length, savings:data.savings.length, borrow:data.borrow.length, splits:data.splits.length } });
-  return res.json({ ok: true, data: row?.data || data, updatedAt: row?.updated_at || null });
+  const verify = await db.query('SELECT user_id, updated_at FROM expense_data WHERE user_id = $1', [userId]);
+  console.log('expense_data PUT', JSON.stringify({ userId, inserted: !!row, verifyRows: verify.rowCount, counts: { money:data.money.length, expenses:data.expenses.length, savings:data.savings.length, borrow:data.borrow.length, splits:data.splits.length } }));
+  return res.json({ ok: true, data: row?.data || data, updatedAt: row?.updated_at || null, persisted: verify.rowCount === 1 });
 }
