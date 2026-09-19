@@ -533,13 +533,15 @@ function renderTrend(){const el=document.getElementById("monthlyTrend");if(!el)r
 function renderToday(){const td=data.expenses.filter(x=>x.date===localToday());document.getElementById("todayTable").innerHTML=td.length?`<div class="table-wrap"><table><thead><tr><th>Category</th><th>Amount</th><th>Note</th><th>Time</th></tr></thead><tbody>${td.map(x=>`<tr><td>${icons[x.category]||"💸"} ${esc(x.category)}</td><td class="amount">${moneyFmt(x.amount)}</td><td>${esc(x.note||"-")}</td><td>${esc(x.time||"—")}</td></tr>`).join("")}</tbody><tfoot><tr><th>Total</th><th>${moneyFmt(sum(td))}</th><th colspan="2"></th></tr></tfoot></table></div>`:"<div class='empty'>No expense added for today.</div>"}
 function renderRecentTransactions(){
   const mf=document.getElementById("transactionMonthFilter")?.value||selectedMonth;
-  const events=[
+  const allEvents=[
     ...(data.expenses||[]).map(x=>({id:Number(x.id||0),date:String(x.date||""),category:x.category||"Expense",amount:-Math.abs(Number(x.amount||0)),kind:"expense"})),
     ...(data.money||[]).map(x=>({id:Number(x.id||0),date:String(x.date||""),category:x.type||"Money Received",amount:Math.abs(Number(x.amount||0)),kind:"money"})),
     ...(data.splits||[]).flatMap(s=>(s.participants||[]).filter(p=>p.status==="paid"&&!p.isYou).map(p=>({id:`splitpay_${s.id}_${p.id}`,date:String(p.paidAt||s.date||""),category:"Split Payment",amount:Math.abs(Number(p.amount||0)),kind:"split"}))),
     ...(data.borrow||[]).flatMap(x=>{const amt=Math.abs(Number(x.amount||0)),type=x.type||"Get / Borrow";const rows=[{id:Number(x.id||0)*10+1,date:String(x.date||""),category:type,amount:type==="Get From"?-amt:amt,kind:"borrow"}];if(x.status==="completed"){rows.push({id:Number(x.id||0)*10+2,date:String(x.completedAt||x.date||""),category:type==="Get From"?"Get From — Received":"Borrow From — Paid",amount:type==="Get From"?amt:-amt,kind:"borrow-complete"});}return rows})
-  ].filter(x=>x.amount!==0&&(!mf||monthOf(x.date)===mf)).sort((a,b)=>a.date.localeCompare(b.date)||String(a.id).localeCompare(String(b.id)));
-  const rows=[];let left=0;
+  ].filter(x=>x.amount!==0).sort((a,b)=>a.date.localeCompare(b.date)||String(a.id).localeCompare(String(b.id)));
+  const baseline=mf?allEvents.filter(x=>monthOf(x.date)<mf).reduce((t,x)=>t+x.amount,0):0;
+  const events=mf?allEvents.filter(x=>monthOf(x.date)===mf):allEvents;
+  const rows=[];let left=baseline;
   for(const e of events){left+=e.amount;rows.push({...e,left});}
   const recent=rows.slice(-20).reverse();
   const el=document.getElementById("recentTransactionsTable");
