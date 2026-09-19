@@ -537,7 +537,7 @@ function renderRecentTransactions(){
     ...(data.expenses||[]).map(x=>({id:Number(x.id||0),date:String(x.date||""),category:x.category||"Expense",amount:-Math.abs(Number(x.amount||0)),kind:"expense"})),
     ...(data.money||[]).map(x=>({id:Number(x.id||0),date:String(x.date||""),category:x.type||"Money Received",amount:Math.abs(Number(x.amount||0)),kind:"money"})),
     ...(data.splits||[]).flatMap(s=>(s.participants||[]).filter(p=>p.status==="paid"&&!p.isYou).map(p=>({id:`splitpay_${s.id}_${p.id}`,date:String(p.paidAt||s.date||""),category:"Split Payment",amount:Math.abs(Number(p.amount||0)),kind:"split"}))),
-    ...(data.borrow||[]).map(x=>({id:Number(x.id||0),date:String(x.date||""),category:x.type||"Get / Borrow",amount:x.type==="Get From"?(x.status==="completed"?0:-Math.abs(Number(x.amount||0))):Math.abs(Number(x.amount||0)),kind:"borrow"}))
+    ...(data.borrow||[]).flatMap(x=>{const amt=Math.abs(Number(x.amount||0)),type=x.type||"Get / Borrow";const rows=[{id:Number(x.id||0)*10+1,date:String(x.date||""),category:type,amount:type==="Get From"?-amt:amt,kind:"borrow"}];if(x.status==="completed"){rows.push({id:Number(x.id||0)*10+2,date:String(x.completedAt||x.date||""),category:type+" — Completed",amount:type==="Get From"?amt:-amt,kind:"borrow-complete"});}return rows})
   ].filter(x=>x.amount!==0&&(!mf||monthOf(x.date)===mf)).sort((a,b)=>a.date.localeCompare(b.date)||String(a.id).localeCompare(String(b.id)));
   const rows=[];let left=0;
   for(const e of events){left+=e.amount;rows.push({...e,left});}
