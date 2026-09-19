@@ -621,7 +621,7 @@ function render(){
     }
   }catch{}
   data.money=Array.isArray(data.money)?data.money:[];data.expenses=Array.isArray(data.expenses)?data.expenses:[];data.borrow=Array.isArray(data.borrow)?data.borrow:[];data.savings=Array.isArray(data.savings)?data.savings:[];data.splits=Array.isArray(data.splits)?data.splits:[];data.splitGroups=Array.isArray(data.splitGroups)?data.splitGroups:[];
-  if(!dashboardMonthInitialized){
+  if(true){
     const months=[...data.money,...data.expenses,...data.borrow,...data.savings,...data.splits].map(x=>monthOf(x.date||x.completedAt)).filter(m=>/^\\d{4}-\\d{2}$/.test(m)).sort();
     if(months.length && ![...data.money,...data.expenses,...data.borrow,...data.savings,...data.splits].some(x=>monthOf(x.date||x.completedAt)===selectedMonth))selectedMonth=months[months.length-1];
     dashboardMonthInitialized=true;
