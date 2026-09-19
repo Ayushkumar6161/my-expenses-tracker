@@ -1464,4 +1464,34 @@ html,body{max-width:100%;overflow-x:hidden!important}
 }
 @media(max-width:1100px) and (min-width:651px){#dashboard .bottom-row{grid-template-columns:1.4fr .8fr .8fr!important;grid-template-rows:205px!important;height:205px!important}.light-app #dashboard .bottom-row{grid-template-columns:1.4fr .8fr .8fr!important}}
 @media(max-width:650px){#dashboard .bottom-row{grid-template-columns:1fr!important;height:auto!important;min-height:0!important}#dashboard .bottom-row>.card{height:auto!important;min-height:150px!important}#dashboard .summary-compact{grid-template-columns:1fr 1fr!important}}
-</style><style id="dashboard-calendar-visibility-fix">#dashboard .calendar-card #dashboardCalendar{display:block!important;visibility:visible!important;opacity:1!important;min-height:145px!important;height:auto!important;width:100%!important;position:relative!important;z-index:2!important}#dashboard .calendar-card .mini-cal-title{display:flex!important;align-items:center!important;justify-content:space-between!important;height:20px!important;margin:0 0 4px!important;color:#dfe7f1!important}#dashboard .calendar-card .mini-cal-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:2px!important;width:100%!important;visibility:visible!important;opacity:1!important}#dashboard .calendar-card .mini-cal-grid .cal-head,#dashboard .calendar-card .mini-cal-grid .cal-day{display:flex!important;visibility:visible!important;opacity:1!important}#dashboard .calendar-card .mini-cal-grid .cal-day{height:19px!important;min-height:19px!important}#dashboard .calendar-card .mini-cal-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;visibility:visible!important;opacity:1!important}#dashboard .calendar-card .mini-cal-grid .cal-head,#dashboard .calendar-card .mini-cal-grid .cal-day{visibility:visible!important;opacity:1!important}</style><style id="recent-transactions-width-final">@media(min-width:1101px){#dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}}@media(max-width:1100px) and (min-width:651px){#dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}}</style><style id="dashboard-bottom-equal-final">#dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}.dark-app #dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}.light-app #dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}</style></body></html>
+</style><style id="dashboard-calendar-visibility-fix">#dashboard .calendar-card #dashboardCalendar{display:block!important;visibility:visible!important;opacity:1!important;min-height:145px!important;height:auto!important;width:100%!important;position:relative!important;z-index:2!important}#dashboard .calendar-card .mini-cal-title{display:flex!important;align-items:center!important;justify-content:space-between!important;height:20px!important;margin:0 0 4px!important;color:#dfe7f1!important}#dashboard .calendar-card .mini-cal-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:2px!important;width:100%!important;visibility:visible!important;opacity:1!important}#dashboard .calendar-card .mini-cal-grid .cal-head,#dashboard .calendar-card .mini-cal-grid .cal-day{display:flex!important;visibility:visible!important;opacity:1!important}#dashboard .calendar-card .mini-cal-grid .cal-day{height:19px!important;min-height:19px!important}#dashboard .calendar-card .mini-cal-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;visibility:visible!important;opacity:1!important}#dashboard .calendar-card .mini-cal-grid .cal-head,#dashboard .calendar-card .mini-cal-grid .cal-day{visibility:visible!important;opacity:1!important}</style><style id="recent-transactions-width-final">@media(min-width:1101px){#dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}}@media(max-width:1100px) and (min-width:651px){#dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}}</style><style id="dashboard-bottom-equal-final">#dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}.dark-app #dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}.light-app #dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}</style><script id="cloud-local-recovery-sync">
+(function(){
+  try{
+    var raw=localStorage.getItem("myExpensesData");
+    if(!raw)return;
+    var localData=JSON.parse(raw);
+    if(!localData||typeof localData!=="object")return;
+    var hasData=["money","expenses","borrow","savings","splits","splitGroups"].some(function(k){
+      return Array.isArray(localData[k])&&localData[k].length>0;
+    });
+    if(!hasData)return;
+    fetch("/api/data",{method:"GET",credentials:"include"})
+      .then(function(r){return r.ok?r.json():null})
+      .then(function(remote){
+        if(!remote||!remote.data)return;
+        var d=remote.data;
+        var remoteHas=["money","expenses","borrow","savings","splits","splitGroups"].some(function(k){
+          return Array.isArray(d[k])&&d[k].length>0;
+        });
+        if(remoteHas)return;
+        return fetch("/api/data",{
+          method:"PUT",
+          credentials:"include",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify(localData)
+        });
+      })
+      .catch(function(e){console.warn("Cloud recovery sync skipped:",e)});
+  }catch(e){console.warn("Cloud recovery sync skipped:",e)}
+})();
+</script></body></html>
