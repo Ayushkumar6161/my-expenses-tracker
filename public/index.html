@@ -682,10 +682,24 @@ async function loadCloudDataSafe(){
         localStorage.setItem("myExpensesDataSavedAt",String(Date.now()));
         if(saved?.updatedAt)localStorage.setItem("myExpensesCloudUpdatedAt",String(new Date(saved.updatedAt).getTime()));
       }else if(remoteHas && localHas && localAt && localAt>remoteAt){
+        data=local;
+        data.money=data.money||[];data.expenses=data.expenses||[];data.borrow=data.borrow||[];data.savings=data.savings||[];data.splits=data.splits||[];data.splitGroups=data.splitGroups||[];
+        const wr=await fetch(API,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+        if(!wr.ok)throw Error("save:"+wr.status);
+        const saved=await wr.json();
+        const savedAt=saved?.updatedAt?new Date(saved.updatedAt).getTime():Date.now();
+        localStorage.setItem("myExpensesData",JSON.stringify(data));
+        localStorage.setItem("myExpensesDataSavedAt",String(savedAt));
+        localStorage.setItem("myExpensesCloudUpdatedAt",String(savedAt));
+      }else if(remoteHas){
         data=remote;
         data.money=data.money||[];data.expenses=data.expenses||[];data.borrow=data.borrow||[];data.savings=data.savings||[];data.splits=data.splits||[];data.splitGroups=data.splitGroups||[];
         localStorage.setItem("myExpensesData",JSON.stringify(data));
         localStorage.setItem("myExpensesDataSavedAt",String(remoteAt||Date.now()));
+        if(remoteAt)localStorage.setItem("myExpensesCloudUpdatedAt",String(remoteAt));
+      }else if(localHas){
+        data=local;
+        data.money=data.money||[];data.expenses=data.expenses||[];data.borrow=data.borrow||[];data.savings=data.savings||[];data.splits=data.splits||[];data.splitGroups=data.splitGroups||[];
       }else{
         data={money:[],expenses:[],borrow:[],savings:[],splits:[],splitGroups:[]};
         localStorage.setItem("myExpensesData",JSON.stringify(data));
