@@ -252,6 +252,16 @@
   #dashboard .metric-icon{width:26px;height:26px;border-radius:8px;font-size:11px}
   #dashboard .chart-card{min-height:235px!important;border-radius:14px!important}
 }
+</style><style>
+.quick-actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px}
+.quick-actions-grid button{min-height:76px;padding:11px 10px;border:1px solid #2a3949;border-radius:11px;background:#151f2a;color:#eef4fb;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;text-align:left;transition:transform .15s,border-color .15s,background .15s}
+.quick-actions-grid button:hover{transform:translateY(-1px);border-color:#08d69a;background:#1a2835}
+.quick-actions-grid button b{font-size:10px;line-height:1.2}
+.qa-icon{width:27px;height:27px;border-radius:8px;display:grid;place-items:center;font-size:15px;font-weight:900}
+.qa-icon.green{background:#063e35;color:#08d69a}.qa-icon.blue{background:#102f55;color:#4da0ff}.qa-icon.orange{background:#493313;color:#ffb52e}.qa-icon.teal{background:#073d46;color:#35d5d5}.qa-icon.purple{background:#29204f;color:#a88cff}
+.dark-app .quick-actions-grid button{background:#151f2a!important;color:#eef4fb!important;border-color:#304052!important}
+.dark-app .quick-actions-grid button:hover{background:#202e3d!important;border-color:#08d69a!important}
+@media(max-width:650px){.quick-actions-grid{grid-template-columns:1fr 1fr}.quick-actions-grid button{min-height:68px}}
 </style></head>
 <style>
 /* CONSISTENT TYPOGRAPHY */
