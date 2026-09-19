@@ -1,7 +1,7 @@
 import { db } from 'hatchable';
 
 export const access = 'user';
-export const methods = ['GET', 'PUT', 'POST'];
+export const methods = ['GET', 'PUT'];
 
 const empty = { money: [], expenses: [], borrow: [], savings: [], splits: [], splitGroups: [] };
 
