@@ -562,7 +562,7 @@ async function loadCloudDataSafe(){
       const has=d=>keys.some(k=>Array.isArray(d?.[k])&&d[k].length);
       const localHas=has(local), remoteHas=has(remote);
       const localAt=Number(localStorage.getItem("myExpensesDataSavedAt")||0);
-      if(localHas && (!remoteAt || !localAt || localAt>=remoteAt)){
+      if(localHas && !remoteHas){
         data=local;
         data.money=data.money||[];data.expenses=data.expenses||[];data.borrow=data.borrow||[];data.savings=data.savings||[];data.splits=data.splits||[];data.splitGroups=data.splitGroups||[];
         const wr=await fetch(API,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
@@ -571,7 +571,7 @@ async function loadCloudDataSafe(){
         localStorage.setItem("myExpensesData",JSON.stringify(data));
         localStorage.setItem("myExpensesDataSavedAt",String(Date.now()));
         if(saved?.updatedAt)localStorage.setItem("myExpensesCloudUpdatedAt",String(new Date(saved.updatedAt).getTime()));
-      }else if(remoteHas){
+      }else if(remoteHas && localHas && localAt && localAt>remoteAt){
         data=remote;
         data.money=data.money||[];data.expenses=data.expenses||[];data.borrow=data.borrow||[];data.savings=data.savings||[];data.splits=data.splits||[];data.splitGroups=data.splitGroups||[];
         localStorage.setItem("myExpensesData",JSON.stringify(data));
