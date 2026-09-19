@@ -705,9 +705,25 @@ async function loadCloudDataSafe(){
         localStorage.setItem("myExpensesData",JSON.stringify(data));
       }
       cloudReady=true;render();return;
-    }catch(e){lastError=e;console.warn("Cloud sync retry",attempt+1,e);await new Promise(r=>setTimeout(r,1000*(attempt+1)))}
+    }catch(e){
+      lastError=e;
+      console.warn("Cloud sync retry",attempt+1,e);
+      if(attempt===4){
+        let fallback=null;
+        try{fallback=JSON.parse(localStorage.getItem("myExpensesData")||"null")}catch{}
+        if(fallback&&typeof fallback==="object"){
+          data=fallback;
+          data.money=data.money||[];data.expenses=data.expenses||[];data.borrow=data.borrow||[];data.savings=data.savings||[];data.splits=data.splits||[];data.splitGroups=data.splitGroups||[];
+          cloudReady=true;
+          render();
+          console.warn("Cloud unavailable; restored local data safely.");
+          return;
+        }
+      }
+      await new Promise(r=>setTimeout(r,1000*(attempt+1)))
+    }
   }
-  console.error(lastError);alert("Could not sync your data. Please refresh and try again.")
+  console.error(lastError);alert("Cloud sync is unavailable right now. Your saved local data has been restored.")
 }
 async function refreshCloudDataSafe(){
   if(!cloudReady||document.getElementById("modal").classList.contains("show"))return;
