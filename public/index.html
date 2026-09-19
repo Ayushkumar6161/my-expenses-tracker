@@ -634,7 +634,7 @@ window.addEventListener("focus",refreshCloudDataSafe);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")refreshCloudDataSafe()});
 setInterval(refreshCloudDataSafe,5000);
 loadCloudDataSafe();
-function renderRecent(){const arr=data.expenses.slice().filter(x=>monthOf(x.date)===selectedMonth).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||Number(b.id||0)-Number(a.id||0)).slice(0,6);document.getElementById("recentExpenses").innerHTML=arr.length?arr.map(x=>`<div class="row"><div class="row-left"><div class="icon">${icons[x.category]||"💸"}</div><div><b>${esc(x.category)}</b><div class="muted">${fmtDate(x.date)}${x.note?" · "+esc(x.note):""}</div></div></div><span class="amount redText">−${moneyFmt(x.amount)}</span></div>`).join(""):"<div class='empty'>No expenses in the last 7 days</div>"}
+function renderRecent(){const arr=data.expenses.slice().filter(x=>monthOf(x.date)===selectedMonth).sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))||Number(b.splitId||b.id||0)-Number(a.splitId||a.id||0)).slice(0,6);document.getElementById("recentExpenses").innerHTML=arr.length?arr.map(x=>`<div class="row"><div class="row-left"><div class="icon">${icons[x.category]||"💸"}</div><div><b>${esc(x.category)}</b><div class="muted">${fmtDate(x.date)}${x.note?" · "+esc(x.note):""}</div></div></div><span class="amount redText">−${moneyFmt(x.amount)}</span></div>`).join(""):"<div class='empty'>No expenses in the last 7 days</div>"}
 </script><style>
 /* LIGHT THEME */
 body.light-app{background:#f5f7fb!important;color:#182238!important}
