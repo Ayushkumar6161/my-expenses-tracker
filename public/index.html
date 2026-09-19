@@ -534,7 +534,8 @@ function renderToday(){const td=data.expenses.filter(x=>x.date===localToday());d
 function renderRecentTransactions(){
   const mf=document.getElementById("transactionMonthFilter")?.value||selectedMonth;
   const allEvents=[
-    ...(data.expenses||[]).map(x=>({id:Number(x.id||0),date:String(x.date||""),category:x.splitGenerated||x.splitId?((x.category||"Expense")+" (Split)"):x.category||"Expense",amount:-Math.abs(Number(x.amount||0)),kind:"expense"})),
+    ...(data.expenses||[]).filter(x=>!x.splitGenerated&&!x.splitId).map(x=>({id:`e_${x.id}`,sortId:Number(x.id||0),date:String(x.date||""),category:x.category||"Expense",amount:-Math.abs(Number(x.amount||0)),kind:"expense"})),
+    ...(data.splits||[]).map(s=>({id:`split_${s.id}`,sortId:Number(s.id||0),date:String(s.date||""),category:(s.category||"Miscellaneous")+" (Split)",amount:-Math.abs(Number(s.amount||0)),kind:"split"})),
     ...(data.money||[]).map(x=>({id:Number(x.id||0),date:String(x.date||""),category:x.type||"Money Received",amount:Math.abs(Number(x.amount||0)),kind:"money"})),
     ...(data.splits||[]).flatMap(s=>(s.participants||[]).filter(p=>p.status==="paid"&&!p.isYou).map(p=>({id:`splitpay_${s.id}_${p.id}`,date:String(p.paidAt||s.date||""),category:"Split Payment",amount:Math.abs(Number(p.amount||0)),kind:"split"}))),
     ...(data.borrow||[]).flatMap(x=>{const amt=Math.abs(Number(x.amount||0)),type=x.type||"Get / Borrow";const rows=[{id:Number(x.id||0)*10+1,date:String(x.date||""),category:type,amount:type==="Get From"?-amt:amt,kind:"borrow"}];if(x.status==="completed"){rows.push({id:Number(x.id||0)*10+2,date:String(x.completedAt||x.date||""),category:type==="Get From"?"Get From — Received":"Borrow From — Paid",amount:type==="Get From"?amt:-amt,kind:"borrow-complete"});}return rows})
