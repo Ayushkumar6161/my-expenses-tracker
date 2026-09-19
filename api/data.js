@@ -28,20 +28,23 @@ export default async function (req, res) {
 
   if (req.method === 'GET') {
     const { rows } = await db.query(
-      'SELECT data FROM expense_data WHERE user_id = $1',
+      'SELECT data, updated_at FROM expense_data WHERE user_id = $1',
       [userId]
     );
     const row = rows[0];
+    console.log('expense_data GET', { userId, found: !!row });
     return res.json({ data: row?.data || empty, updatedAt: row?.updated_at || null });
   }
 
   const data = clean(req.body);
-  await db.query(
+  const result = await db.query(
     `INSERT INTO expense_data (user_id, data, updated_at)
      VALUES ($1, $2::jsonb, NOW())
-     ON CONFLICT (user_id) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()` ,
+     ON CONFLICT (user_id) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()
+     RETURNING data, updated_at`,
     [userId, JSON.stringify(data)]
   );
-  const { rows } = await db.query('SELECT updated_at FROM expense_data WHERE user_id = $1', [userId]);
-  return res.json({ ok: true, data, updatedAt: rows[0]?.updated_at || null });
+  const row = result.rows[0];
+  console.log('expense_data PUT', { userId, inserted: !!row, counts: { money:data.money.length, expenses:data.expenses.length, savings:data.savings.length, borrow:data.borrow.length, splits:data.splits.length } });
+  return res.json({ ok: true, data: row?.data || data, updatedAt: row?.updated_at || null });
 }
