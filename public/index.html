@@ -809,9 +809,16 @@ async function loadCloudDataSafe(){
       if(!displayName){
         displayName=await askForDisplayName();
         data.profileName=displayName||"";
-        if(displayName){
-          fetch(API,{method:"PUT",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}).catch(e=>console.warn("Name save skipped",e));
-        }
+      }
+      if(displayName){
+        const pn=document.getElementById("profileName");if(pn)pn.textContent=displayName;
+        const pa=document.getElementById("profileAvatar");if(pa)pa.textContent=displayName.trim().charAt(0).toUpperCase();
+        const dg=document.getElementById("dashboardGreeting");if(dg)dg.textContent="Good Evening, "+displayName+" 👋";
+        localStorage.setItem("myExpensesData",JSON.stringify(data));
+        try{
+          const nr=await fetch(API,{method:"PUT",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+          if(nr.ok){const saved=await nr.json();if(saved?.data&&typeof saved.data==="object"){data=saved.data;data.profileName=displayName}}
+        }catch(e){console.warn("Name save failed; keeping local name",e)}
       }
       const pn=document.getElementById("profileName");if(pn)pn.textContent=displayName||"Account";
       const pa=document.getElementById("profileAvatar");if(pa)pa.textContent=(displayName||"A").trim().charAt(0).toUpperCase();
