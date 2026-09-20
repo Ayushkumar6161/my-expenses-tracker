@@ -8,6 +8,10 @@ providers = ["email"]
 read = "own"
 write = "own"
 
+[db.tables.expense_data_backups]
+read = "own"
+write = "own"
+
 [db.tables.user_profiles]
 read = "own"
 write = "own"

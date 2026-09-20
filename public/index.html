@@ -614,7 +614,7 @@ const sum=a=>a.reduce((s,x)=>s+Number(x.amount||0),0),esc=s=>String(s??"").repla
 async function loadCloudDataLegacy(){let lastError=null;for(let attempt=0;attempt<5;attempt++){try{const session=await window.hatchable.auth.getSession();if(!session?.user){if(attempt<4){await new Promise(r=>setTimeout(r,800));continue}location.href="/login?next="+encodeURIComponent(location.pathname+location.search);return}const displayName=session.user.name||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split("@")[0]||"Account";document.getElementById("accountEmail").textContent=session.user.email||"Signed in";const pn=document.getElementById("profileName");if(pn)pn.textContent=displayName;const pa=document.getElementById("profileAvatar");if(pa)pa.textContent=displayName.trim().charAt(0).toUpperCase();const dg=document.getElementById("dashboardGreeting");if(dg)dg.textContent="Good Evening, "+displayName+" 👋";const r=await fetch(API,{cache:"no-store"});if(!r.ok)throw Error("load:"+r.status);const remote=await r.json();let legacy=null;try{legacy=JSON.parse(localStorage.getItem("myExpensesData")||"null")}catch{}const keys=["money","expenses","borrow","savings","splits","splitGroups"];const has=(d,k)=>Array.isArray(d?.[k])&&d[k].length;const merge=(a,b)=>{const out={};keys.forEach(k=>{const aa=Array.isArray(a?.[k])?a[k]:[],bb=Array.isArray(b?.[k])?b[k]:[],map=new Map(aa.map(x=>[String(x.id),x]));bb.forEach(x=>map.set(String(x.id),x));out[k]=[...map.values()]});return out};const localHas=legacy&&keys.some(k=>has(legacy,k));const remoteHas=keys.some(k=>has(remote,k));if(localHas&&!remoteHas){data=legacy}else if(localHas&&remoteHas){data=merge(legacy,remote)}else{data=remote||{}}data.money=data.money||[];data.expenses=data.expenses||[];data.borrow=data.borrow||[];data.savings=data.savings||[];data.splits=data.splits||[];data.splitGroups=data.splitGroups||[];data.profileName=typeof data.profileName==="string"?data.profileName.trim():"";
       displayName=data.profileName||session.user.name||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split("@")[0]||"";
       if(!displayName){displayName=await askForDisplayName();data.profileName=displayName||"";profileNameNeedsSave=!!displayName}
-      const pn=document.getElementById("profileName");if(pn)pn.textContent=displayName||"Account";
+      const profileNameEl=document.getElementById("profileName");if(profileNameEl)profileNameEl.textContent=displayName||"Account";
       const pa=document.getElementById("profileAvatar");if(pa)pa.textContent=(displayName||"A").trim().charAt(0).toUpperCase();
       const dg=document.getElementById("dashboardGreeting");if(dg)dg.textContent="Good Evening, "+(displayName||"Account")+" 👋";
       localStorage.setItem("myExpensesData",JSON.stringify(data));
@@ -761,8 +761,13 @@ async function loadCloudDataSafe(){
     try{
       const session=await window.hatchable.auth.getSession();
       if(!session?.user){if(attempt<4){await new Promise(r=>setTimeout(r,800));continue}location.href="/login?next="+encodeURIComponent(location.pathname+location.search);return}
-      const displayName=session.user.name||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split("@")[0]||"Account";
+      let displayName=session.user.name||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split("@")[0]||"";
+      try{
+        const pr=await fetch("/api/profile",{cache:"no-store",credentials:"include"});
+        if(pr.ok){const pj=await pr.json();if(pj?.displayName)displayName=String(pj.displayName).trim()}
+      }catch{}
       document.getElementById("accountEmail").textContent=session.user.email||"Signed in";
+      if(!displayName)displayName="Account";
       const r=await fetch(API,{cache:"no-store"});if(!r.ok)throw Error("load:"+r.status);
       const payload=await r.json();
       const remote=payload?.data&&typeof payload.data==="object"?payload.data:payload;
