@@ -1,0 +1,1 @@
+CREATE INDEX expense_data_backups_user_created_idx ON expense_data_backups (user_id, created_at DESC)
