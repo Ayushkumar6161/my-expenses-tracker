@@ -752,7 +752,13 @@ async function loadCloudDataSafe(){
     try{
       const session=await window.hatchable.auth.getSession();
       if(!session?.user){if(attempt<4){await new Promise(r=>setTimeout(r,800));continue}location.href="/login?next="+encodeURIComponent(location.pathname+location.search);return}
-      const displayName=session.user.name||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split("@")[0]||"Account";
+      let profileName="";
+      try{const pr=await fetch("/api/profile",{cache:"no-store"});if(pr.ok){const pj=await pr.json();profileName=String(pj.displayName||"").trim()}}catch(e){console.warn("Profile load skipped",e)}
+      if(!profileName){
+        profileName=prompt("What should we call you?")?.trim()||"Account";
+        if(profileName!=="Account"){try{await fetch("/api/profile",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({displayName:profileName})})}catch(e){console.warn("Profile save skipped",e)}}
+      }
+      const displayName=profileName||session.user.name||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split("@")[0]||"Account";
       document.getElementById("accountEmail").textContent=session.user.email||"Signed in";
       const pn=document.getElementById("profileName");if(pn)pn.textContent=displayName;
       const pa=document.getElementById("profileAvatar");if(pa)pa.textContent=displayName.trim().charAt(0).toUpperCase();
