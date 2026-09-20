@@ -7,3 +7,7 @@ providers = ["email"]
 [db.tables.expense_data]
 read = "own"
 write = "own"
+
+[db.tables.user_profiles]
+read = "own"
+write = "own"

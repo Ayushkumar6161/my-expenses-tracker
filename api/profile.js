@@ -4,7 +4,7 @@ export const access = 'member';
 export const methods = ['GET','PUT'];
 
 export default async function(req,res){
-  const userId=req.member?.id;
+  const userId=req.user?.id ?? req.member?.id;
   if(!userId)return res.status(401).json({error:'unauthorized'});
   if(req.method==='GET'){
     const {rows}=await db.query('SELECT display_name FROM user_profiles WHERE user_id = $1',[userId]);
