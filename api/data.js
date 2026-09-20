@@ -38,6 +38,7 @@ export default async function (req, res) {
   }
 
   const data = clean(req.body);
+  const clientUpdatedAt = req.body?.clientUpdatedAt ? new Date(req.body.clientUpdatedAt) : null;
   const { rows: existingRows } = await db.query(
     'SELECT data, updated_at FROM expense_data WHERE user_id = $1',
     [userId]
@@ -45,6 +46,19 @@ export default async function (req, res) {
   const existing = existingRows[0];
   const existingHas = !!existing && hasRecords(existing.data || {});
   const incomingHas = hasRecords(data);
+
+  // If the client knows which cloud revision it edited, reject stale writes.
+  // This prevents an older tab/device from overwriting newer cloud data.
+  if (existing?.updated_at && clientUpdatedAt && Number.isFinite(clientUpdatedAt.getTime())) {
+    const serverAt = new Date(existing.updated_at);
+    if (serverAt.getTime() > clientUpdatedAt.getTime() + 1000) {
+      return res.status(409).json({
+        error: 'stale_conflict',
+        message: 'Cloud data changed on another device. Reload the latest data before saving.',
+        updatedAt: existing.updated_at
+      });
+    }
+  }
 
   // Never let an accidental empty client state erase a non-empty cloud account.
   // An explicit empty-state write is only allowed when the cloud row is already empty.
@@ -75,6 +89,18 @@ export default async function (req, res) {
       `INSERT INTO expense_data_backups (user_id, data, source_updated_at)
        VALUES ($1, $2::jsonb, $3)`,
       [userId, JSON.stringify(data), row.updated_at]
+    );
+    // Keep only the latest 20 snapshots per account.
+    await db.query(
+      `DELETE FROM expense_data_backups
+       WHERE user_id = $1
+         AND id NOT IN (
+           SELECT id FROM expense_data_backups
+           WHERE user_id = $1
+           ORDER BY created_at DESC, id DESC
+           LIMIT 20
+         )`,
+      [userId]
     );
   }
 
