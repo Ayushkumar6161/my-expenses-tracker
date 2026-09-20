@@ -615,8 +615,8 @@ async function loadCloudDataLegacy(){let lastError=null;for(let attempt=0;attemp
       displayName=data.profileName||session.user.name||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split("@")[0]||"";
       if(!displayName){displayName=await askForDisplayName();data.profileName=displayName||"";profileNameNeedsSave=!!displayName}
       const profileNameEl=document.getElementById("profileName");if(profileNameEl)profileNameEl.textContent=displayName||"Account";
-      const pa=document.getElementById("profileAvatar");if(pa)pa.textContent=(displayName||"A").trim().charAt(0).toUpperCase();
-      const dg=document.getElementById("dashboardGreeting");if(dg)dg.textContent="Good Evening, "+(displayName||"Account")+" 👋";
+      const profileAvatarEl=document.getElementById("profileAvatar");if(profileAvatarEl)profileAvatarEl.textContent=(displayName||"A").trim().charAt(0).toUpperCase();
+      const greetingEl=document.getElementById("dashboardGreeting");if(greetingEl)greetingEl.textContent="Good Evening, "+(displayName||"Account")+" 👋";
       localStorage.setItem("myExpensesData",JSON.stringify(data));
       cloudReady=true;render();
       if(localHas||profileNameNeedsSave){fetch(API,{method:"PUT",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}).catch(e=>console.warn("Profile/data save deferred",e))}
