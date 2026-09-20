@@ -754,10 +754,7 @@ async function loadCloudDataSafe(){
       if(!session?.user){if(attempt<4){await new Promise(r=>setTimeout(r,800));continue}location.href="/login?next="+encodeURIComponent(location.pathname+location.search);return}
       let profileName="";
       try{const pr=await fetch("/api/profile",{cache:"no-store"});if(pr.ok){const pj=await pr.json();profileName=String(pj.displayName||"").trim()}}catch(e){console.warn("Profile load skipped",e)}
-      if(!profileName){
-        profileName=prompt("What should we call you?")?.trim()||"Account";
-        if(profileName!=="Account"){try{await fetch("/api/profile",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({displayName:profileName})})}catch(e){console.warn("Profile save skipped",e)}}
-      }
+      if(!profileName){profileName=await askForDisplayName();if(profileName){try{await fetch("/api/profile",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({displayName:profileName})})}catch(e){console.warn("Profile save skipped",e)}}}
       const displayName=profileName||session.user.name||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email?.split("@")[0]||"Account";
       document.getElementById("accountEmail").textContent=session.user.email||"Signed in";
       const pn=document.getElementById("profileName");if(pn)pn.textContent=displayName;
@@ -1577,4 +1574,14 @@ html,body{max-width:100%;overflow-x:hidden!important}
       .catch(function(e){console.warn("Cloud recovery sync skipped:",e)});
   }catch(e){console.warn("Cloud recovery sync skipped:",e)}
 })();
-</script></body></html>
+</script><style>
+.profile-name-modal{position:fixed;inset:0;background:rgba(3,9,16,.78);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:20px;z-index:2147483000}
+.profile-name-modal.show{display:flex}
+.profile-name-card{width:min(430px,100%);background:#111a24;color:#eef4fb;border:1px solid #2b3b4d;border-radius:18px;padding:28px;box-shadow:0 25px 70px rgba(0,0,0,.55);text-align:center}
+.profile-name-icon{font-size:34px;margin-bottom:8px}
+.profile-name-card h3{margin:0 0 8px;font-size:21px}
+.profile-name-card p{margin:0 0 18px;color:#8c9aad;font-size:13px}
+.profile-name-card input{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #304154;background:#0d1721;color:#eef4fb;outline:0;margin-bottom:12px}
+.profile-name-card input:focus{border-color:#1677ed;box-shadow:0 0 0 2px rgba(22,119,237,.18)}
+.profile-name-card .btn{width:100%;padding:12px}
+</style><div class="profile-name-modal" id="profileNameModal" aria-hidden="true"><div class="profile-name-card"><div class="profile-name-icon">👋</div><h3>Welcome to My Expenses</h3><p>What should we call you?</p><input id="profileNameInput" type="text" maxlength="80" placeholder="Enter your name" autocomplete="name"><button class="btn" type="button" id="profileNameSave">Continue</button></div></div><script>async function askForDisplayName(){return new Promise(resolve=>{const m=document.getElementById("profileNameModal"),i=document.getElementById("profileNameInput"),b=document.getElementById("profileNameSave");if(!m||!i||!b){resolve("");return}const finish=()=>{const n=i.value.trim();if(!n){i.focus();return}m.classList.remove("show");m.setAttribute("aria-hidden","true");resolve(n)};b.onclick=finish;i.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();finish()}};m.classList.add("show");m.setAttribute("aria-hidden","false");setTimeout(()=>i.focus(),50)})}</script></body></html>
