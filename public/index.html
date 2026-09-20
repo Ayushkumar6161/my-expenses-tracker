@@ -684,11 +684,7 @@ let autoSaveSignature="",autoSaveBusy=false;async function autoSaveIfChanged(){i
 function monthOptions(){ensureCategories();const el=document.getElementById("monthSelect");let months=[];const now=new Date();for(let i=-12;i<=12;i++){const d=new Date(now.getFullYear(),now.getMonth()+i,1);months.push(d.getFullYear()+"-"+pad(d.getMonth()+1))}el.innerHTML=months.map(m=>`<option value="${m}">${monthLabel(m)}</option>`).join("");if(!months.includes(selectedMonth))selectedMonth=months[12]||selectedMonth;el.value=selectedMonth;const ef=document.getElementById("expenseMonthFilter");if(ef){ef.innerHTML='<option value="">All Months</option>'+months.map(m=>`<option value="${m}">${monthLabel(m)}</option>`).join("");ef.value=selectedMonth}const cf=document.getElementById("expenseCategoryFilter");if(cf&&!cf.options.length)cf.innerHTML='<option value="">All Categories</option>'+CATS.map(c=>`<option>${esc(c)}</option>`).join("");const mm=document.getElementById("moneyMonthFilter");if(mm){mm.innerHTML='<option value="">All Months</option>'+months.map(m=>`<option value="${m}">${monthLabel(m)}</option>`).join("");if(!mm.dataset.userChanged)mm.value=selectedMonth}const tmf=document.getElementById("transactionMonthFilter");if(tmf){tmf.innerHTML='<option value="">All Months</option>'+months.map(m=>`<option value="${m}">${monthLabel(m)}</option>`).join("");tmf.value=transactionHistoryMonth||""}}
 function changeMonth(m){if(!/^\d{4}-\d{2}$/.test(String(m)))return;selectedMonth=String(m);dashboardMonthInitialized=true;try{localStorage.setItem("dashboardSelectedMonth",selectedMonth)}catch{};const el=document.getElementById("monthSelect");if(el)el.value=selectedMonth;render();renderCalendar();}function shiftMonth(n){const [y,m]=selectedMonth.split("-").map(Number);const d=new Date(y,m-1+n,1);selectedMonth=d.getFullYear()+"-"+pad(d.getMonth()+1);dashboardMonthInitialized=true;try{localStorage.setItem("dashboardSelectedMonth",selectedMonth)}catch{};const el=document.getElementById("monthSelect");if(el)el.value=selectedMonth;render();renderCalendar();}
 function openModal(type,id=null){const form=document.getElementById("form");form.dataset.type=type;form.dataset.editId=id||"";document.getElementById("modal").classList.add("show");const titles={expense:["Add Expense","Edit Expense"],money:["Add Money Received","Edit Money Received"],savings:["Add Savings","Edit Savings"],borrow:["Add Get / Borrow","Edit Get / Borrow"],group:["Create Split Group","Edit Group"],split:["Add Split","Edit Split"]};document.getElementById("modalTitle").textContent=titles[type]?.[id?1:0]||"Add Record";const store={expense:"expenses",money:"money",savings:"savings",borrow:"borrow",group:"splitGroups",split:"splits"}[type];const r=id?((data[store]||[]).find(x=>x.id==id)||{}):{};let html="";const date=r.date||localToday();if(type==="expense")html=`<div class="formgrid"><div class="field"><label>Date</label><input name="date" type="date" value="${date}" required></div><div class="field"><label>Amount (₹)</label><input name="amount" type="number" min="0" step="0.01" value="${r.amount??""}" required></div><div class="field full"><label>Category</label><select name="category" onchange="handleTempCategory(this)">${CATS.map(c=>`<option ${r.category===c?"selected":""}>${esc(c)}</option>`).join("")}${r.category&&!CATS.includes(r.category)?`<option selected>${esc(r.category)}</option>`:""}<option value="__temporary__">＋ Create temporary category</option></select></div><div class="field full"><label>Where / Note</label><input name="note" value="${esc(r.note||"")}" placeholder="e.g. D-Mart, canteen, auto"></div></div>`;if(type==="money")html=`<div class="formgrid"><div class="field"><label>Date</label><input name="date" type="date" value="${date}" required></div><div class="field"><label>Amount (₹)</label><input name="amount" type="number" min="0" step="0.01" value="${r.amount??""}" required></div><div class="field"><label>Type</label><select name="type"><option ${r.type==="Main Money"?"selected":""}>Main Money</option><option ${r.type==="Extra Money"?"selected":""}>Extra Money</option></select></div><div class="field"><label>Note</label><input name="note" value="${esc(r.note||"")}" placeholder="Monthly money / extra"></div></div>`;if(type==="savings")html=`<div class="formgrid"><div class="field"><label>Date</label><input name="date" type="date" value="${date}" required></div><div class="field"><label>Amount (₹)</label><input name="amount" type="number" min="0" step="0.01" value="${r.amount??""}" required></div><div class="field full"><label>Note</label><input name="note" value="${esc(r.note||"")}" placeholder="e.g. Bank / cash savings"></div></div>`;if(type==="borrow")html=`<div class="formgrid"><div class="field"><label>Date</label><input name="date" type="date" value="${date}" required></div><div class="field"><label>Amount (₹)</label><input name="amount" type="number" min="0" step="0.01" value="${r.amount??""}" required></div><div class="field"><label>Type</label><select name="type"><option ${r.type==="Get From"?"selected":""}>Get From</option><option ${r.type==="Borrow From"?"selected":""}>Borrow From</option></select></div><div class="field"><label>Person</label><input name="person" value="${esc(r.person||"")}" placeholder="Person name"></div><div class="field full"><label>Note</label><input name="note" value="${esc(r.note||"")}"></div></div>`;if(type==="group")html=`<div class="formgrid"><div class="field full"><label>Group Name</label><input name="groupName" value="${esc(r.name||"")}" placeholder="e.g. College Friends" required></div><div class="field full"><label>Members</label><div class="note">👤 You is automatically included as the main payer.</div><div id="groupMembers" style="display:grid;gap:8px">${(r.members||[]).filter(m=>!m.isYou).map(m=>`<div class="group-member-row" style="display:grid;grid-template-columns:1fr 38px;gap:7px"><input name="groupMember" value="${esc(m.name||"")}" placeholder="Friend name" required><button type="button" class="close" onclick="this.parentElement.remove()">✕</button></div>`).join("")}</div><button type="button" class="btn gray" style="margin-top:9px" onclick="addGroupMember()">+ Add Member</button></div></div>`;if(type==="split"){data.splitGroups=data.splitGroups||[];const group=data.splitGroups.find(g=>g.id===r.groupId)||data.splitGroups[0];const members=group?.members||[];html=`<div class="formgrid"><div class="field full"><label>Group</label><select name="groupId" onchange="loadSplitGroupMembers(this.value)">${data.splitGroups.length?data.splitGroups.map(g=>`<option value="${g.id}" ${String(g.id)===String(r.groupId)?"selected":""}>${esc(g.name)}</option>`).join(""):"<option value=\"\">Create a group first</option>"}</select></div><div class="field"><label>Date</label><input name="date" type="date" value="${date}" required></div><div class="field"><label>Category</label><select name="category" onchange="handleTempCategory(this)">${CATS.map(c=>`<option ${r.category===c?"selected":""}>${esc(c)}</option>`).join("")}<option value="__temporary__">＋ Create temporary category</option></select></div><div class="field full"><label>Note</label><input name="note" value="${esc(r.note||"")}" placeholder="Optional note"></div><div class="field full"><label>Total Amount (₹)</label><input id="splitTotalInput" name="splitTotal" type="number" min="0" step="0.01" value="${r.amount??""}" placeholder="1000" oninput="equalizeSplitAmounts()" required></div><div class="field full"><label>Select Members & Amounts</label><div id="splitMembers" style="display:grid;gap:8px">${members.map(m=>{const p=(r.participants||[]).find(q=>q.memberId===m.id||q.name===m.name);const checked=r.id?!!p:true;return `<div class="split-member-row" data-member-id="${esc(m.id)}" data-you="${m.isYou?"1":"0"}" style="display:grid;grid-template-columns:28px 1fr 120px;gap:7px;align-items:center"><input type="checkbox" name="memberSelected" value="${esc(m.id)}" ${checked?"checked":""} onchange="equalizeSplitAmounts()"><span>${m.isYou?"👤 You":esc(m.name)}</span><input name="memberAmount" data-member-id="${esc(m.id)}" type="number" min="0" step="0.01" value="${p?.amount??""}" placeholder="Amount" ${checked?"":"disabled"} required></div>`}).join("")}</div><div class="muted">Select/unselect members. Amounts start equally and can be edited individually.</div></div><div class="field full"><label>Note</label><input name="note" value="${esc(r.note||"")}" placeholder="Optional note"></div></div>`}document.getElementById("formFields").innerHTML=html;if(type==="group")addGroupMember();if(type==="split"&&!data.splitGroups.length){document.getElementById("saveBtn").textContent="Create Group First";document.getElementById("saveBtn").disabled=true}else{document.getElementById("saveBtn").disabled=false;document.getElementById("saveBtn").textContent=id?(type==="split"?"Update Split":"Update"):type==="split"?"Create Split":"Save";if(type==="split"&&!id)equalizeSplitAmounts()}}
-let categoryEditorIndex=-1;
-function openCategoryEditor(index){ensureCategories();categoryEditorIndex=index;const m=document.getElementById("categoryEditModal"),i=document.getElementById("categoryEditInput"),t=document.getElementById("categoryEditTitle");if(!m||!i)return;i.value=index>=0?(CATS[index]||""):"";if(t)t.textContent=index>=0?"Rename Category":"Add Category";m.classList.add("show");setTimeout(()=>i.focus(),50)}
-function closeCategoryEditor(){const m=document.getElementById("categoryEditModal");if(m)m.classList.remove("show");categoryEditorIndex=-1}
-async function saveCategoryEditor(){const i=document.getElementById("categoryEditInput"),n=i?.value.trim();if(!n){i?.focus();return}ensureCategories();if(CATS.some((c,x)=>x!==categoryEditorIndex&&c.toLowerCase()===n.toLowerCase()))return alert("That category already exists.");if(categoryEditorIndex<0){CATS.push(n)}else{const old=CATS[categoryEditorIndex];if(!old||old===n){closeCategoryEditor();return}CATS[categoryEditorIndex]=n;if(old===savingsCategory)savingsCategory=n;(data.expenses||[]).forEach(x=>{if(x.category===old)x.category=n});(data.splits||[]).forEach(x=>{if(x.category===old)x.category=n})}data.categories=CATS.slice();closeCategoryEditor();renderCategoryManager();await save();render()}
-let categoryDragIndex=-1,categoryEditorIndex=-1,categoryDraft=[],categoryOriginal=[],categoryRenameMap={};
+let categoryEditorIndex=-1,categoryDraft=[],categoryOriginal=[],categoryRenameMap={};
 function openCategoryManager(){ensureCategories();categoryDraft=CATS.slice();categoryOriginal=CATS.slice();categoryRenameMap={};document.getElementById("categoryManagerModal")?.classList.add("show");renderCategoryManager()}
 function closeCategoryManager(){document.getElementById("categoryManagerModal")?.classList.remove("show")}
 function openCategoryEditor(index){categoryEditorIndex=index;const m=document.getElementById("categoryEditModal"),i=document.getElementById("categoryEditInput"),t=document.getElementById("categoryEditTitle");if(!m||!i)return;i.value=index>=0?(categoryDraft[index]||""):"";if(t)t.textContent=index>=0?"Rename Category":"Add Category";m.classList.add("show");setTimeout(()=>i.focus(),50)}
@@ -698,9 +694,8 @@ function deleteCategory(index){const name=categoryDraft[index];if(!name)return;i
 function categoryDragStart(event,index){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",String(index))}
 function categoryDragOver(event){event.preventDefault()}
 function categoryDrop(event,targetIndex){event.preventDefault();const from=Number(event.dataTransfer.getData("text/plain"));if(!Number.isInteger(from)||from<0||from>=categoryDraft.length||from===targetIndex)return;const moved=categoryDraft.splice(from,1)[0];categoryDraft.splice(targetIndex,0,moved);renderCategoryManager()}
-function renderCategoryManager(){const el=document.getElementById("categoryManager");if(!el)return;el.innerHTML=categoryDraft.map((c,i)=>'<div draggable="true" ondragstart="categoryDragStart(event,'+i+')" ondragover="categoryDragOver(event)" ondrop="categoryDrop(event,'+i+')" style="display:flex;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid #edf0f4;cursor:grab"><span style="width:28px">☰</span><span style="width:30px;text-align:center">'+(icons[c]||"🏷️")+'</span><b style="flex:1">'+esc(c)+'</b><button type="button" class="mini-btn" onclick="openCategoryEditor('+i+')">✎ Edit</button><button type="button" class="mini-btn del" onclick="deleteCategory('+i+')" '+(c===savingsCategory?"disabled":"")+'>🗑</button></div>').join("")}
+function renderCategoryManager(){const el=document.getElementById("categoryManager");if(!el)return;el.innerHTML=categoryDraft.map((c,i)=>'<div draggable="true" ondragstart="categoryDragStart(event,'+i+')" ondragover="categoryDragOver(event)" ondrop="categoryDrop(event,'+i+')" style="display:flex;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid #edf0f4;cursor:grab"><span style="width:28px">☰</span><span style="width:30px;text-align:center">'+(icons[c]||"🏷️")+'</span><b style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(c)+'</b><button type="button" class="mini-btn" onclick="openCategoryEditor('+i+')">✎ Edit</button><button type="button" class="mini-btn del" onclick="deleteCategory('+i+')" '+(c===savingsCategory?"disabled":"")+'>🗑</button></div>').join("")}
 async function saveCategoryChanges(){const finalCats=[...new Set(categoryDraft.map(x=>String(x||"").trim()).filter(Boolean))];if(!finalCats.length)return alert("At least one category is required.");Object.entries(categoryRenameMap).forEach(([old,n])=>{(data.expenses||[]).forEach(x=>{if(x.category===old)x.category=n});(data.splits||[]).forEach(x=>{if(x.category===old)x.category=n})});CATS=finalCats.slice();data.categories=CATS.slice();await save();closeCategoryManager();render()}
-}
 function handleTempCategory(select){if(select.value!=="__temporary__")return;const old=select.value;select.value=select.options[0]?.value||"";const box=document.getElementById("tempCategoryModal");if(box){box.classList.add("show");const input=box.querySelector("input");if(input){input.value="";input.focus()}}}function closeTempCategory(){const box=document.getElementById("tempCategoryModal");if(box)box.classList.remove("show");const s=document.querySelector('#form select[name="category"]');if(s)s.value=s.dataset.previousValue||s.options[0]?.value||""}function saveTempCategory(){const box=document.getElementById("tempCategoryModal"),input=box?.querySelector("input"),name=input?.value.trim();if(!name){input?.focus();return}const s=document.querySelector('#form select[name="category"]');if(s){const opt=document.createElement("option");opt.value=name;opt.textContent=name;opt.dataset.temporary="true";s.insertBefore(opt,s.lastElementChild);s.value=name;s.dataset.previousValue=name}closeTempCategory();if(s)s.value=name}function openSavingsModal(){openModal('savings')}
 function closeModal(){document.getElementById("modal").classList.remove("show")}
 function addGroupMember(name=""){const box=document.getElementById("groupMembers");if(!box)return;const row=document.createElement("div");row.className="group-member-row";row.style.cssText="display:grid;grid-template-columns:1fr 38px;gap:7px";row.innerHTML=`<input name="groupMember" value="${esc(name)}" placeholder="Friend name" required><button type="button" class="close" onclick="this.parentElement.remove()">✕</button>`;box.appendChild(row);row.querySelector('input[name="groupMember"]').focus()}
@@ -1248,6 +1243,825 @@ html,body{max-width:100%;overflow-x:hidden!important}
 .light-app .trend-col span{font-size:8px!important}
 .light-app .row{padding:9px 0!important}
 .light-app .row b,.light-app .amount{font-size:9px!important}
+.light-app .icon{width:30px!important;height:30px!important}
+.light-app .empty{padding:28px 8px!important;font-size:10px!important}
+.light-app .summary-list>div{padding:9px 2px!important;font-size:9px!important}
+.light-app .quote-card{margin-top:12px!important;padding:10px 13px!important;font-size:9px!important}
+.light-app .quote-card b{font-size:9px!important}
+.light-app .calendar-card .cal-day{min-height:39px!important;padding:4px!important}
+.light-app .calendar-card .cal-head{padding:5px!important;font-size:8px!important}
+.light-app .calendar-card .cal-day .d{font-size:9px!important}
+.light-app .calendar-card .cal-day .spent{font-size:7px!important}
+.light-app th{font-size:11px!important}
+.light-app td{font-size:12px!important}
+.light-app .monthbox{align-self:center!important}
+@media(max-width:1100px){
+ .light-app .sidebar{width:180px!important}
+ .light-app .main{margin-left:180px!important;width:calc(100% - 180px)!important}
+ .light-app .charts-row,.light-app .bottom-row{grid-template-columns:1fr 1fr!important}
+ .light-app .recent-card{grid-column:1/-1!important}
+}
+@media(max-width:650px){
+ .light-app .sidebar{width:260px!important}
+ .light-app .main{margin-left:0!important;width:100%!important;padding:15px!important}
+ .light-app .mobile-menu{display:flex!important}
+ .light-app .grid4.dashboard-metrics{grid-template-columns:1fr 1fr!important}
+ .light-app .charts-row,.light-app .dashboard-row:not(.charts-row),.light-app .bottom-row{grid-template-columns:1fr!important}
+ .light-app .recent-card{grid-column:auto!important}
+ .light-app .top-actions{width:100%!important;display:grid!important;grid-template-columns:1fr auto!important;gap:8px!important}
+ .light-app .monthbox{grid-column:1/-1!important;width:100%!important;min-width:0!important}
+ .light-app .add-menu-wrap{grid-column:2!important;grid-row:2!important}
+ .light-app .add-menu{right:0!important;top:49px!important}
+}
+</style><style id="light-mode-final-parity">
+/* FIX: light-mode add menu must be absolutely positioned like dark mode */
+.light-app .add-menu-wrap{position:relative!important;overflow:visible!important}
+.light-app .add-menu{position:absolute!important;display:none!important;right:0!important;top:calc(100% + 7px)!important;width:185px!important;padding:7px!important;z-index:100!important;box-sizing:border-box!important}
+.light-app .add-menu.show{display:block!important}
+.light-app .add-menu button{display:flex!important;width:100%!important;align-items:center!important;gap:10px!important;box-sizing:border-box!important}
+/* LIGHT MODE FINAL PARITY: mirror DARK MODE structure/sizing; colors stay light */
+.light-app .top h1{font-size:23px!important;font-weight:800!important}
+.light-app .top p{font-size:10px!important}
+.light-app .section-title{font-size:13px!important;font-weight:800!important}
+.light-app .muted{font-size:9px!important}
+.light-app .nav button{font-size:11px!important;font-weight:600!important}
+.light-app .brand b{font-size:16px!important}
+.light-app .brand small{font-size:7px!important}
+.light-app .btn{font-size:10px!important;font-weight:800!important}
+.light-app .link{font-size:9px!important}
+.light-app .metric .label{font-size:10px!important}
+.light-app .metric .value{font-size:23px!important}
+.light-app .field label{font-size:10px!important}
+.light-app .field input,.light-app .field select,.light-app .field textarea,.light-app .filters input,.light-app .filters select{font-size:10px!important}
+.light-app th{font-size:9px!important}
+.light-app td{font-size:10px!important}
+.light-app .row b,.light-app .amount{font-size:10px!important}
+.light-app .empty{font-size:10px!important}
+.light-app .note{font-size:9px!important}
+.light-app .danger{font-size:10px!important}
+.light-app .settings-grid .section-title{font-size:13px!important}
+.light-app .settings-grid .muted{font-size:9px!important;line-height:1.45!important}
+.light-app .settings-grid .btn{font-size:11px!important;padding:9px 14px!important}
+.light-app .settings-grid .danger{padding:11px 12px!important}
+.light-app .monthbox select{font-size:10px!important}
+.light-app .monthbox button{font-size:11px!important}
+.light-app .add-menu button{font-size:10px!important}
+.light-app .calendar-card .cal-head{font-size:8px!important}
+.light-app .calendar-card .cal-day .d{font-size:9px!important}
+.light-app .calendar-card .cal-day .spent{font-size:8px!important}
+
+/* SPLIT: exact same geometry/order as dark */
+.light-app #split>.grid2{grid-template-columns:1.35fr .65fr!important;align-items:start!important}
+.light-app #split>.grid2>.card:first-child{order:2!important;align-self:start!important}
+.light-app #split>.grid2>.card:last-child{order:1!important;align-self:start!important}
+.light-app #split>.grid2>.card{height:auto!important;min-height:0!important}
+.light-app #splitGroups{min-height:0!important}
+.light-app #splitGroups .row{padding:9px 0!important}
+
+/* Compact edit/delete and split controls */
+.light-app .edit-btn,.light-app .delete-btn,.light-app button[onclick*="edit"],.light-app button[onclick*="delete"]{font-size:9px!important;padding:5px 8px!important;min-width:0!important;height:28px!important;border-radius:7px!important}
+.light-app .edit-btn svg,.light-app .delete-btn svg{width:13px!important;height:13px!important}
+.light-app #split .btn{font-size:10px!important;padding:8px 12px!important}
+.light-app #split .card>.section-head .btn{height:36px!important}
+.light-app #split .card .btn,.light-app #split .card button[onclick*="edit"],.light-app #split .card button[onclick*="delete"],.light-app #split .card .mini-btn{font-size:10px!important;padding:6px 9px!important;min-height:30px!important;border-radius:7px!important;line-height:1.1!important}
+.light-app #split .card button[title*="Delete"],.light-app #split .card button[aria-label*="Delete"]{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:12px!important}
+.light-app #split .card button[title*="Edit"],.light-app #split .card button[aria-label*="Edit"]{min-width:58px!important}
+.light-app #splitTable .section-head>div:last-child{display:flex!important;align-items:center!important;gap:7px!important;white-space:nowrap!important}
+.light-app #splitTable .section-head>div:last-child .amount{margin-right:3px!important}
+
+/* Expense chart geometry */
+.light-app .expense-bar-chart{width:100%;display:flex;flex-direction:column;gap:12px;padding:6px 4px 4px}
+.light-app .expense-bar-row{display:grid!important;grid-template-columns:minmax(120px,28%) 1fr 38px!important;align-items:center!important;gap:10px!important;margin:0!important;font-size:10px!important}
+.light-app .expense-bar-label{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}
+.light-app .expense-bar-label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.light-app .expense-bar-label b{font-size:10px;white-space:nowrap}
+.light-app .expense-bar-track{height:12px;border-radius:8px;overflow:hidden;min-width:0}
+.light-app .expense-bar-row small{text-align:right;font-size:9px}
+.light-app .expense-vertical-chart{height:190px;width:100%;display:flex;gap:7px;align-items:stretch;padding:6px 8px 0 0;box-sizing:border-box}
+.light-app .expense-y-axis{width:38px;display:flex;flex-direction:column;justify-content:space-between;padding:2px 0 25px;text-align:right;font-size:8px}
+.light-app .expense-vertical-bars{flex:1;display:flex;align-items:stretch;justify-content:space-around;gap:10px;border-bottom:1px solid #dce3ec;min-width:0}
+.light-app .expense-vcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+.light-app .expense-vvalue{height:20px;font-size:8px;white-space:nowrap}
+.light-app .expense-vbar-wrap{height:135px;width:100%;max-width:34px;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(to top,rgba(20,30,50,.04) 1px,transparent 1px);background-size:100% 45px}
+.light-app .cal-day{background:#f8f9fb!important;color:#182238!important}
+.light-app .cal-day:hover{background:#eef5ff!important}
+.light-app .bar{background:#edf0f5!important}
+.light-app .add-main{background:#08d69a!important;color:#06150f!important}
+.light-app .add-menu{background:#fff!important;border:1px solid #dce3ec!important;box-shadow:0 18px 50px rgba(20,30,50,.16)!important}
+.light-app .add-menu button{color:#182238!important}
+.light-app .add-menu button:hover{background:#f1f5f9!important}
+.light-app .chart-actions select,.light-app .trend-card select{background:#fff!important;color:#182238!important;border-color:#dce3ec!important}
+.light-app .quote-card{background:#fff!important;border-color:#dce3ec!important;color:#182238!important}
+.light-app .toggle-on{background:#cbd5e1!important}
+.light-app .toggle-on i{margin-left:0!important}
+/* LIGHT MODE: theme switch must remain visible even when toggle-on class is removed */
+.light-app #themeToggle{display:block!important;width:30px!important;height:17px!important;border:0!important;border-radius:20px!important;background:#cbd5e1!important;padding:2px!important;box-sizing:border-box!important;cursor:pointer!important;margin-left:auto!important;flex-shrink:0!important}
+.light-app #themeToggle i{display:block!important;width:13px!important;height:13px!important;border-radius:50%!important;background:#fff!important;margin-left:0!important;box-shadow:0 1px 2px rgba(0,0,0,.12)!important}
+.light-app .profile{border-color:#dce3ec!important}
+.light-app .profile .avatar{background:#e8edf5!important;color:#344054!important}
+.light-app .profile-more{color:#7f8da3!important}
+.light-app .dark-toggle{color:#6b778c!important}
+</style><script>
+function applyTheme(){
+  const dark=localStorage.getItem("myExpensesTheme")!=="light";
+  document.body.classList.toggle("dark-app",dark);
+  document.body.classList.toggle("light-app",!dark);
+  const t=document.getElementById("themeToggle");
+  if(t){t.classList.toggle("toggle-on",dark);t.setAttribute("aria-label",dark?"Switch to light mode":"Switch to dark mode");const i=t.querySelector("i");if(i)i.style.marginLeft=dark?"12px":"0"}
+}
+function toggleTheme(){
+  const dark=document.body.classList.contains("dark-app");
+  localStorage.setItem("myExpensesTheme",dark?"light":"dark");
+  applyTheme();
+}
+applyTheme();
+</script><style>
+/* LIGHT THEME — SAME LAYOUT/SCALE AS DARK THEME */
+.light-app .sidebar{width:205px!important;padding:20px 14px!important}
+.light-app .brand{padding:0 8px 20px!important;gap:9px!important}
+.light-app .brand-icon{width:34px!important;height:34px!important;border-radius:9px!important;font-size:16px!important}
+.light-app .brand b{font-size:16px!important;line-height:1.05!important}
+.light-app .brand small{font-size:7px!important}
+.light-app .nav button{font-size:11px!important;padding:10px 10px!important;margin:3px 0!important;border-radius:8px!important}
+.light-app .nav button:first-letter{font-size:13px!important}
+.light-app .nav .sep{margin:12px 5px!important}
+.light-app .sidebar-bottom{left:14px!important;right:14px!important;bottom:14px!important}
+.light-app .dark-toggle{font-size:9px!important;margin-bottom:10px!important}
+.light-app .toggle-on{width:30px!important;height:17px!important;border-radius:20px!important;padding:2px!important}
+.light-app .toggle-on i{width:13px!important;height:13px!important;margin-left:0!important}
+.light-app .profile{padding-top:10px!important;font-size:9px!important;gap:8px!important}
+.light-app .profile .avatar{width:28px!important;height:28px!important}
+.light-app .profile small{font-size:7px!important}
+.light-app .main{margin-left:205px!important;width:calc(100% - 205px)!important;padding:18px 20px 24px!important}
+.light-app .top{margin-bottom:12px!important}
+.light-app .top h1{font-size:23px!important;line-height:1.1!important}
+.light-app .top p{font-size:9px!important;margin:3px 0 0!important}
+.light-app .top-actions{gap:8px!important}
+.light-app .monthbox{height:36px!important;border-radius:8px!important}
+.light-app .monthbox button{padding:7px 10px!important;font-size:10px!important}
+.light-app .monthbox select{min-width:120px!important;font-size:9px!important;padding:0 8px!important}
+.light-app .add-main{width:38px!important;height:38px!important;border-radius:50%!important;font-size:25px!important;padding:0!important}
+.light-app .add-menu{top:44px!important;width:180px!important;padding:6px!important;background:#fff!important;border:1px solid #dce3ec!important;box-shadow:0 15px 35px rgba(20,30,50,.18)!important}
+.light-app .add-menu button{font-size:10px!important;padding:8px!important;color:#182238!important}
+.light-app .add-menu button span{width:22px!important;height:22px!important;font-size:10px!important;background:#eef4ff!important}
+.light-app .grid4.dashboard-metrics{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;margin:0!important}
+.light-app .dashboard-metrics .card{min-height:78px!important}
+.light-app .card{border-radius:11px!important;padding:12px!important}
+.light-app .metric .label{font-size:9px!important}
+.light-app .metric .value{font-size:22px!important;margin:6px 0 3px!important}
+.light-app .metric .muted{font-size:7px!important}
+.light-app .dashboard-row{gap:10px!important;margin-top:10px!important}
+.light-app .charts-row{grid-template-columns:1.55fr 1fr 1fr!important}
+.light-app .dashboard-row:not(.charts-row){grid-template-columns:1fr 1fr!important}
+.light-app .bottom-row{grid-template-columns:1.55fr .85fr .85fr!important}
+.light-app .chart-card{min-height:205px!important}
+.light-app .section-head{margin-bottom:8px!important}
+.light-app .section-title{font-size:12px!important}
+.light-app .link{font-size:8px!important}
+.light-app .chart-actions{gap:6px!important}
+.light-app .chart-actions select,.light-app .trend-card select{font-size:8px!important;padding:5px 7px!important}
+.light-app .breakdown{grid-template-columns:145px 1fr!important;min-height:145px!important;gap:6px!important}
+.light-app .donut{width:120px!important;height:120px!important}
+.light-app .donut:after{inset:32px!important;background:#fff!important}
+.light-app .donut-center{font-size:13px!important}
+.light-app .donut-center .muted{font-size:7px!important}
+.light-app .legend{gap:7px!important}
+.light-app .legend-row{font-size:9px!important}
+.light-app .dot{width:7px!important;height:7px!important}
+.light-app .trend-chart{height:150px!important}
+.light-app .trend-bars{height:135px!important;padding:7px 3px 0!important;gap:8px!important}
+.light-app .bars{height:100px!important;gap:3px!important}
+.light-app .bars i{width:9px!important}
+.light-app .trend-col span{font-size:7px!important}
+.light-app .row{padding:8px 0!important}
+.light-app .row b,.light-app .amount{font-size:9px!important}
+.light-app .icon{width:27px!important;height:27px!important}
+.light-app .empty{padding:20px 6px!important;font-size:9px!important}
+.light-app .summary-list>div{padding:8px 2px!important;font-size:9px!important}
+.light-app .quote-card{margin-top:10px!important;padding:9px 11px!important;border-radius:9px!important;font-size:8px!important}
+.light-app .calendar-card .cal-day{min-height:36px!important;padding:4px!important}
+.light-app .calendar-card .cal-head{padding:4px!important;font-size:7px!important}
+.light-app .calendar-card .cal-day .d{font-size:8px!important}
+.light-app .calendar-card .cal-day .spent{font-size:7px!important}
+.light-app th{font-size:8px!important}
+.light-app td{font-size:9px!important}
+@media(max-width:1100px){
+ .light-app .sidebar{width:205px!important}
+ .light-app .main{margin-left:205px!important;width:calc(100% - 205px)!important}
+ .light-app .charts-row,.light-app .bottom-row{grid-template-columns:1fr 1fr!important}
+ .light-app .recent-card{grid-column:1/-1!important}
+}
+@media(max-width:650px){
+ .light-app .sidebar{width:260px!important}
+ .light-app .main{margin-left:0!important;width:100%!important;padding:15px!important}
+ .light-app .mobile-menu{display:flex!important}
+ .light-app .grid4.dashboard-metrics{grid-template-columns:1fr 1fr!important}
+ .light-app .charts-row,.light-app .dashboard-row:not(.charts-row),.light-app .bottom-row{grid-template-columns:1fr!important}
+ .light-app .recent-card{grid-column:auto!important}
+}
+</style><script src="/pwa-register.js"></script><style>
+/* DASHBOARD TYPOGRAPHY CONSISTENCY */
+.dark-app #dashboard .metric-inline .label{font-size:13px!important;line-height:1.25!important;font-weight:700!important;color:#eef4fb!important}
+.dark-app #dashboard .metric-inline .value{font-size:20px!important;line-height:1.1!important;margin:6px 0 3px!important;font-weight:900!important}
+.dark-app #dashboard .metric-inline .muted{font-size:9px!important;line-height:1.35!important}
+.dark-app #dashboard .section-title{font-size:13px!important;line-height:1.2!important}
+.dark-app #dashboard .link{font-size:9px!important}
+.dark-app #dashboard .metric .label{font-size:10px!important;line-height:1.2!important}
+.dark-app #dashboard .metric .value{font-size:23px!important}
+.dark-app #dashboard .metric .muted{font-size:8px!important}
+.dark-app #dashboard .row b,.dark-app #dashboard .amount{font-size:10px!important}
+.dark-app #dashboard th{font-size:9px!important}
+.dark-app #dashboard td{font-size:10px!important}
+.dark-app #dashboard .summary-list>div{font-size:10px!important}
+.dark-app #dashboard .summary-list>div b{font-size:11px!important}
+</style><style>
+/* LIGHT MODE: identical structure and dimensions to Dark Mode; colors only differ */
+.light-app .sidebar{width:205px!important;padding:20px 14px!important}
+.light-app .brand{padding:0 8px 20px!important;gap:9px!important}
+.light-app .brand-icon{width:34px!important;height:34px!important;border-radius:9px!important;font-size:16px!important}
+.light-app .brand b{font-size:16px!important;line-height:1.05!important}
+.light-app .brand small{font-size:7px!important;line-height:1.15!important}
+.light-app .nav button{font-size:11px!important;padding:10px 10px!important;margin:3px 0!important;border-radius:8px!important}
+.light-app .nav button:first-letter{font-size:13px!important}
+.light-app .nav .sep{margin:12px 5px!important}
+.light-app .sidebar-bottom{left:14px!important;right:14px!important;bottom:14px!important}
+.light-app .dark-toggle{font-size:9px!important;margin-bottom:10px!important}
+.light-app .profile{padding-top:10px!important;font-size:9px!important;gap:8px!important}
+.light-app .profile .avatar{width:28px!important;height:28px!important}
+.light-app .main{margin-left:205px!important;width:calc(100% - 205px)!important;padding:18px 20px 24px!important}
+.light-app .mobile-menu{display:none!important}
+.light-app .top{margin-bottom:12px!important}
+.light-app .top h1{font-size:23px!important;line-height:1.1!important}
+.light-app .top p{font-size:10px!important;margin:3px 0 0!important}
+.light-app .top-actions{display:flex!important;align-items:center!important;gap:8px!important}
+.light-app .monthbox{height:38px!important}
+.light-app .monthbox button{padding:7px 10px!important;font-size:11px!important}
+.light-app .monthbox select{min-width:155px!important;font-size:10px!important}
+.light-app .add-menu-wrap{display:flex!important;align-items:center!important;justify-content:center!important;height:42px!important}
+.light-app .add-main{width:42px!important;height:42px!important;border-radius:50%!important;font-size:29px!important;padding:0!important;line-height:1!important}
+.light-app .add-menu{top:49px!important;width:185px!important;padding:7px!important}
+.light-app .add-menu button{padding:9px!important;font-size:10px!important}
+.light-app .add-menu button span{width:23px!important;height:23px!important;font-size:10px!important}
+.light-app .grid4.dashboard-metrics{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:0!important}
+.light-app .dashboard-metrics .card{min-height:82px!important}
+.light-app .card{border-radius:11px!important;padding:14px!important}
+.light-app .metric .label{font-size:10px!important}
+.light-app .metric .value{font-size:23px!important;margin:7px 0 3px!important}
+.light-app .metric .muted{font-size:8px!important}
+.light-app .dashboard-row{gap:12px!important;margin-top:12px!important}
+.light-app .charts-row{grid-template-columns:1.55fr 1fr 1fr!important}
+.light-app .dashboard-row:not(.charts-row){grid-template-columns:1fr 1fr!important}
+.light-app .bottom-row{grid-template-columns:1.55fr .85fr .85fr!important}
+.light-app .chart-card{min-height:240px!important}
+.light-app .section-head{margin-bottom:9px!important}
+.light-app .section-title{font-size:13px!important}
+.light-app .link{font-size:9px!important}
+.light-app .chart-actions{gap:7px!important}
+.light-app .chart-actions select,.light-app .trend-card select{font-size:9px!important;padding:6px 8px!important;border-radius:7px!important}
+.light-app .breakdown{grid-template-columns:190px 1fr!important;min-height:185px!important}
+.light-app .donut{width:145px!important;height:145px!important}
+.light-app .donut:after{inset:39px!important}
+.light-app .donut-center{font-size:15px!important}
+.light-app .donut-center .muted{font-size:8px!important}
+.light-app .legend{gap:8px!important}
+.light-app .legend-row{font-size:9px!important}
+.light-app .dot{width:8px!important;height:8px!important}
+.light-app .trend-chart{height:190px!important;display:flex!important;align-items:center!important;overflow:hidden!important}
+.light-app .trend-bars{height:170px!important;width:100%!important;display:flex!important;align-items:flex-end!important;justify-content:space-around!important;gap:10px!important;padding:25px 4px 0!important;position:relative!important;overflow:hidden!important}
+.light-app .trend-legend{position:absolute!important;top:0!important;left:0!important;right:0!important;display:flex!important;justify-content:center!important;gap:12px!important;font-size:8px!important}
+.light-app .trend-legend span{display:inline-flex!important;align-items:center!important;gap:4px!important}
+.light-app .trend-legend i{display:inline-block!important;width:7px!important;height:7px!important;border-radius:2px!important}
+.light-app .trend-col{height:100%!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;align-items:center!important;gap:3px!important;flex:1!important;min-width:0!important}
+.light-app .bars{height:135px!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;gap:4px!important}
+.light-app .bars i{display:block!important;width:11px!important;min-height:2px!important;border-radius:5px 5px 0 0!important}
+.light-app .trend-col span{font-size:8px!important}
+.light-app #dashboard .bottom-row{grid-template-columns:1.6fr .85fr .85fr!important;gap:10px!important;margin-top:10px!important;align-items:stretch!important}
+.light-app #dashboard .bottom-row>.card{height:205px!important;min-height:205px!important;padding:14px!important;box-sizing:border-box!important;overflow:hidden!important}
+.light-app #dashboard .bottom-row>.card:last-child .section-title{font-size:13px!important}
+.light-app #dashboard .bottom-row>.card:last-child .summary-list{margin-top:8px!important;gap:12px!important}
+.light-app #dashboard .bottom-row>.card:last-child .summary-list>div{padding:9px 2px!important;font-size:10px!important;line-height:1.35!important}
+.light-app #dashboard .bottom-row>.card:last-child .summary-list span{font-size:10px!important}
+.light-app #dashboard .bottom-row>.card:last-child .summary-list b{font-size:11px!important}
+.light-app #dashboard .bottom-row .calendar-card .mini-cal-title{height:18px!important;margin:0 0 3px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid{gap:2px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-day{min-height:19px!important;height:19px!important;padding:1px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-day .d{font-size:7px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-day .spent{display:none!important}
+@media(max-width:1100px){
+ .light-app .sidebar{width:180px!important}
+ .light-app .main{margin-left:180px!important;width:calc(100% - 180px)!important}
+ .light-app .charts-row,.light-app .bottom-row{grid-template-columns:1fr 1fr!important}
+ .light-app .recent-card{grid-column:1/-1!important}
+}
+@media(max-width:650px){
+ .light-app .sidebar{width:260px!important}
+ .light-app .main{margin-left:0!important;width:100%!important;padding:15px!important}
+ .light-app .mobile-menu{display:flex!important}
+ .light-app .grid4.dashboard-metrics{grid-template-columns:1fr 1fr!important}
+ .light-app .charts-row,.light-app .dashboard-row:not(.charts-row),.light-app .bottom-row{grid-template-columns:1fr!important}
+ .light-app .recent-card{grid-column:auto!important}
+}
+</style><style>
+/* LIGHT MODE FINAL: force the exact same dashboard grid geometry as Dark Mode */
+.light-app #dashboard .charts-row{
+  display:grid!important;
+  grid-template-columns:1.55fr 1fr 1fr!important;
+  gap:8px!important;
+  margin-top:8px!important;
+}
+.light-app #dashboard .dashboard-row:not(.charts-row){
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important;
+  margin-top:8px!important;
+}
+.light-app #dashboard .bottom-row{
+  display:grid!important;
+  grid-template-columns:1.55fr .85fr .85fr!important;
+  gap:8px!important;
+  margin-top:8px!important;
+}
+.light-app #dashboard .chart-card{min-height:172px!important}
+.light-app #dashboard .charts-row>.card,
+.light-app #dashboard .dashboard-row>.card{min-width:0!important}
+.light-app #dashboard .breakdown{grid-template-columns:125px 1fr!important;min-height:125px!important;gap:4px!important}
+.light-app #dashboard .donut{width:104px!important;height:104px!important}
+.light-app #dashboard .donut:after{inset:28px!important}
+.light-app #dashboard .donut-center{font-size:11px!important}
+.light-app #dashboard .donut-center .muted{font-size:6px!important}
+.light-app #dashboard .legend{gap:5px!important}
+.light-app #dashboard .legend-row{font-size:7px!important}
+.light-app #dashboard .dot{width:6px!important;height:6px!important}
+.light-app #dashboard .trend-chart{height:128px!important}
+.light-app #dashboard .trend-bars{height:115px!important;padding:5px 2px 0!important;gap:7px!important}
+.light-app #dashboard .bars{height:88px!important;gap:3px!important}
+.light-app #dashboard .bars i{width:8px!important}
+.light-app #dashboard .trend-col span{font-size:6px!important}.light-app #dashboard .trend-card .trend-bar>span{height:auto!important;line-height:8px!important;font-size:7px!important;color:#182238!important;margin-bottom:2px!important;min-height:8px!important}
+.light-app #dashboard .bottom-row>.card{height:205px!important;min-height:205px!important}
+@media(min-width:1101px){
+ .light-app #dashboard .charts-row{grid-template-columns:1.55fr 1fr 1fr!important}
+ .light-app #dashboard .bottom-row{grid-template-columns:1.55fr .85fr .85fr!important}
+}
+@media(max-width:1100px){
+ .light-app #dashboard .charts-row{grid-template-columns:1fr 1fr!important}
+ .light-app #dashboard .bottom-row{grid-template-columns:1fr 1fr!important}
+ .light-app #dashboard .recent-card{grid-column:1/-1!important}
+}
+@media(max-width:650px){
+ .light-app #dashboard .charts-row,
+ .light-app #dashboard .dashboard-row:not(.charts-row),
+ .light-app #dashboard .bottom-row{grid-template-columns:1fr!important}
+ .light-app #dashboard .recent-card{grid-column:auto!important}
+}
+</style><style>
+/* LIGHT MODE RESPONSIVE OVERFLOW FIX */
+html,body{max-width:100%;overflow-x:hidden!important}
+.light-app .main{overflow-x:hidden!important;max-width:100vw!important}
+.light-app #dashboard{min-width:0!important;max-width:100%!important;overflow-x:hidden!important}
+.light-app #dashboard .dashboard-row,
+.light-app #dashboard .grid4{min-width:0!important;max-width:100%!important}
+.light-app #dashboard .dashboard-row>.card,
+.light-app #dashboard .grid4>.card{min-width:0!important;max-width:100%!important}
+.light-app .top{min-width:0!important;max-width:100%!important}
+.light-app .top-actions{min-width:0!important;max-width:100%!important}
+.light-app .add-menu{max-width:calc(100vw - 24px)!important;right:0!important}
+@media(max-width:650px){
+  .light-app .main{padding:15px!important}
+  .light-app .top-actions{width:100%!important;display:grid!important;grid-template-columns:1fr auto!important;gap:8px!important}
+  .light-app .monthbox{grid-column:1/-1!important;width:100%!important;min-width:0!important}
+  .light-app .add-menu-wrap{grid-column:2!important;grid-row:2!important}
+  .light-app .add-menu{right:0!important;top:49px!important;width:185px!important}
+}
+</style><style>
+/* LIGHT MODE = DARK MODE GEOMETRY/SCALE (FINAL, color-only difference) */
+.light-app .sidebar{width:205px!important;padding:20px 14px!important}
+.light-app .brand{padding:0 8px 20px!important;gap:9px!important}
+.light-app .brand-icon{width:34px!important;height:34px!important;border-radius:9px!important;font-size:16px!important}
+.light-app .brand b{font-size:16px!important;line-height:1.05!important}
+.light-app .brand small{font-size:7px!important;line-height:1.15!important}
+.light-app .nav button{font-size:11px!important;padding:10px 10px!important;margin:3px 0!important;border-radius:8px!important}
+.light-app .nav button:first-letter{font-size:13px!important}
+.light-app .nav .sep{margin:12px 5px!important}
+.light-app .sidebar-bottom{left:14px!important;right:14px!important;bottom:14px!important}
+.light-app .dark-toggle{font-size:9px!important;margin-bottom:10px!important}
+.light-app .toggle-on{width:30px!important;height:17px!important;border-radius:20px!important;padding:2px!important}
+.light-app .toggle-on i{width:13px!important;height:13px!important;margin-left:13px!important}
+.light-app .profile{padding-top:10px!important;font-size:9px!important;gap:8px!important}
+.light-app .profile .avatar{width:28px!important;height:28px!important}
+.light-app .profile small{font-size:7px!important}
+.light-app .main{margin-left:205px!important;width:calc(100% - 205px)!important;padding:18px 20px 24px!important}
+.light-app .top{margin-bottom:12px!important}
+.light-app .top h1{font-size:23px!important;line-height:1.1!important}
+.light-app .top p{font-size:10px!important;margin:3px 0 0!important}
+.light-app .top-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:10px!important}
+.light-app .monthbox{height:38px!important}
+.light-app .monthbox button{padding:7px 10px!important;font-size:12px!important}
+.light-app .monthbox select{min-width:155px!important;font-size:10px!important}
+.light-app .add-menu-wrap{display:flex!important;align-items:center!important;justify-content:center!important;height:42px!important;position:relative!important}
+.light-app .add-main{width:42px!important;height:42px!important;border-radius:50%!important;font-size:29px!important;padding:0!important;line-height:1!important;display:flex!important;align-items:center!important;justify-content:center!important;margin:0!important;transform:none!important;flex:none!important}
+.light-app .add-menu{top:calc(100% + 7px)!important;width:185px!important;padding:7px!important}
+.light-app .add-menu button{padding:9px!important;font-size:10px!important}
+.light-app .add-menu button span{width:23px!important;height:23px!important;font-size:10px!important}
+.light-app .grid4.dashboard-metrics{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:0!important}
+.light-app .dashboard-metrics .card{min-height:82px!important}
+.light-app .card{border-radius:11px!important;padding:14px!important}
+.light-app .metric .label{font-size:10px!important}
+.light-app .metric .value{font-size:23px!important;margin:7px 0 3px!important}
+.light-app .metric .muted{font-size:8px!important}
+.light-app .dashboard-row{display:grid!important;gap:12px!important;margin-top:12px!important}
+.light-app .charts-row{grid-template-columns:1.55fr 1fr 1fr!important}
+.light-app .dashboard-row:not(.charts-row){grid-template-columns:1fr 1fr!important}
+.light-app .bottom-row{grid-template-columns:1.55fr .85fr .85fr!important}
+.light-app .chart-card{min-height:240px!important}
+.light-app .section-head{margin-bottom:9px!important}
+.light-app .section-title{font-size:12px!important}
+.light-app .link{font-size:9px!important}
+.light-app .chart-actions{display:flex!important;align-items:center!important;gap:7px!important}
+.light-app .chart-actions select,.light-app .trend-card select{font-size:9px!important;padding:6px 8px!important;border-radius:7px!important}
+.light-app .breakdown{grid-template-columns:190px 1fr!important;min-height:185px!important;gap:10px!important}
+.light-app .donut{width:145px!important;height:145px!important}
+.light-app .donut:after{inset:39px!important}
+.light-app .donut-center{font-size:15px!important}
+.light-app .donut-center .muted{font-size:8px!important}
+.light-app .legend{gap:8px!important}
+.light-app .legend-row{font-size:9px!important}
+.light-app .dot{width:8px!important;height:8px!important}
+.light-app .trend-chart{height:190px!important}
+.light-app .trend-bars{height:170px!important;gap:10px!important;padding:10px 4px 0!important}
+.light-app .bars{height:135px!important;gap:4px!important}
+.light-app .bars i{width:11px!important}
+.light-app .trend-col span{font-size:8px!important}
+.light-app .row{padding:9px 0!important}
+.light-app .row b,.light-app .amount{font-size:9px!important}
+.light-app .icon{width:30px!important;height:30px!important}
+.light-app .empty{padding:28px 8px!important;font-size:10px!important}
+.light-app .summary-list>div{padding:9px 2px!important;font-size:9px!important}
+.light-app .quote-card{margin-top:12px!important;padding:10px 13px!important;font-size:9px!important}
+.light-app .quote-card b{font-size:9px!important}
+.light-app .calendar-card .cal-day{min-height:39px!important;padding:4px!important}
+.light-app .calendar-card .cal-head{padding:5px!important;font-size:8px!important}
+.light-app .calendar-card .cal-day .d{font-size:9px!important}
+.light-app .calendar-card .cal-day .spent{font-size:7px!important}
+.light-app th{font-size:11px!important}
+.light-app td{font-size:12px!important}
+.light-app .monthbox{align-self:center!important}
+@media(max-width:1100px){
+ .light-app .sidebar{width:180px!important}
+ .light-app .main{margin-left:180px!important;width:calc(100% - 180px)!important}
+ .light-app .charts-row,.light-app .bottom-row{grid-template-columns:1fr 1fr!important}
+ .light-app .recent-card{grid-column:1/-1!important}
+}
+@media(max-width:650px){
+ .light-app .sidebar{width:260px!important}
+ .light-app .main{margin-left:0!important;width:100%!important;padding:15px!important}
+ .light-app .mobile-menu{display:flex!important}
+ .light-app .grid4.dashboard-metrics{grid-template-columns:1fr 1fr!important}
+ .light-app .charts-row,.light-app .dashboard-row:not(.charts-row),.light-app .bottom-row{grid-template-columns:1fr!important}
+ .light-app .recent-card{grid-column:auto!important}
+ .light-app .top-actions{width:100%!important;display:grid!important;grid-template-columns:1fr auto!important;gap:8px!important}
+ .light-app .monthbox{grid-column:1/-1!important;width:100%!important;min-width:0!important}
+ .light-app .add-menu-wrap{grid-column:2!important;grid-row:2!important}
+ .light-app .add-menu{right:0!important;top:49px!important}
+}
+</style><style id="light-mode-final-parity">
+/* FIX: light-mode add menu must be absolutely positioned like dark mode */
+.light-app .add-menu-wrap{position:relative!important;overflow:visible!important}
+.light-app .add-menu{position:absolute!important;display:none!important;right:0!important;top:calc(100% + 7px)!important;width:185px!important;padding:7px!important;z-index:100!important;box-sizing:border-box!important}
+.light-app .add-menu.show{display:block!important}
+.light-app .add-menu button{display:flex!important;width:100%!important;align-items:center!important;gap:10px!important;box-sizing:border-box!important}
+/* LIGHT MODE FINAL PARITY: mirror DARK MODE structure/sizing; colors stay light */
+.light-app .top h1{font-size:23px!important;font-weight:800!important}
+.light-app .top p{font-size:10px!important}
+.light-app .section-title{font-size:13px!important;font-weight:800!important}
+.light-app .muted{font-size:9px!important}
+.light-app .nav button{font-size:11px!important;font-weight:600!important}
+.light-app .brand b{font-size:16px!important}
+.light-app .brand small{font-size:7px!important}
+.light-app .btn{font-size:10px!important;font-weight:800!important}
+.light-app .link{font-size:9px!important}
+.light-app .metric .label{font-size:10px!important}
+.light-app .metric .value{font-size:23px!important}
+.light-app .field label{font-size:10px!important}
+.light-app .field input,.light-app .field select,.light-app .field textarea,.light-app .filters input,.light-app .filters select{font-size:10px!important}
+.light-app th{font-size:9px!important}
+.light-app td{font-size:10px!important}
+.light-app .row b,.light-app .amount{font-size:10px!important}
+.light-app .empty{font-size:10px!important}
+.light-app .note{font-size:9px!important}
+.light-app .danger{font-size:10px!important}
+.light-app .settings-grid .section-title{font-size:13px!important}
+.light-app .settings-grid .muted{font-size:9px!important;line-height:1.45!important}
+.light-app .settings-grid .btn{font-size:11px!important;padding:9px 14px!important}
+.light-app .settings-grid .danger{padding:11px 12px!important}
+.light-app .monthbox select{font-size:10px!important}
+.light-app .monthbox button{font-size:11px!important}
+.light-app .add-menu button{font-size:10px!important}
+.light-app .calendar-card .cal-head{font-size:8px!important}
+.light-app .calendar-card .cal-day .d{font-size:9px!important}
+.light-app .calendar-card .cal-day .spent{font-size:8px!important}
+
+/* SPLIT: exact same geometry/order as dark */
+.light-app #split>.grid2{grid-template-columns:1.35fr .65fr!important;align-items:start!important}
+.light-app #split>.grid2>.card:first-child{order:2!important;align-self:start!important}
+.light-app #split>.grid2>.card:last-child{order:1!important;align-self:start!important}
+.light-app #split>.grid2>.card{height:auto!important;min-height:0!important}
+.light-app #splitGroups{min-height:0!important}
+.light-app #splitGroups .row{padding:9px 0!important}
+
+/* Compact edit/delete and split controls */
+.light-app .edit-btn,.light-app .delete-btn,.light-app button[onclick*="edit"],.light-app button[onclick*="delete"]{font-size:9px!important;padding:5px 8px!important;min-width:0!important;height:28px!important;border-radius:7px!important}
+.light-app .edit-btn svg,.light-app .delete-btn svg{width:13px!important;height:13px!important}
+.light-app #split .btn{font-size:10px!important;padding:8px 12px!important}
+.light-app #split .card>.section-head .btn{height:36px!important}
+.light-app #split .card .btn,.light-app #split .card button[onclick*="edit"],.light-app #split .card button[onclick*="delete"],.light-app #split .card .mini-btn{font-size:10px!important;padding:6px 9px!important;min-height:30px!important;border-radius:7px!important;line-height:1.1!important}
+.light-app #split .card button[title*="Delete"],.light-app #split .card button[aria-label*="Delete"]{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:12px!important}
+.light-app #split .card button[title*="Edit"],.light-app #split .card button[aria-label*="Edit"]{min-width:58px!important}
+.light-app #splitTable .section-head>div:last-child{display:flex!important;align-items:center!important;gap:7px!important;white-space:nowrap!important}
+.light-app #splitTable .section-head>div:last-child .amount{margin-right:3px!important}
+
+/* Expense chart geometry */
+.light-app .expense-bar-chart{width:100%;display:flex;flex-direction:column;gap:12px;padding:6px 4px 4px}
+.light-app .expense-bar-row{display:grid!important;grid-template-columns:minmax(120px,28%) 1fr 38px!important;align-items:center!important;gap:10px!important;margin:0!important;font-size:10px!important}
+.light-app .expense-bar-label{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}
+.light-app .expense-bar-label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.light-app .expense-bar-label b{font-size:10px;white-space:nowrap}
+.light-app .expense-bar-track{height:12px;border-radius:8px;overflow:hidden;min-width:0}
+.light-app .expense-bar-row small{text-align:right;font-size:9px}
+.light-app .expense-vertical-chart{height:190px;width:100%;display:flex;gap:7px;align-items:stretch;padding:6px 8px 0 0;box-sizing:border-box}
+.light-app .expense-y-axis{width:38px;display:flex;flex-direction:column;justify-content:space-between;padding:2px 0 25px;text-align:right;font-size:8px}
+.light-app .expense-vertical-bars{flex:1;display:flex;align-items:stretch;justify-content:space-around;gap:10px;border-bottom:1px solid #dce3ec;min-width:0}
+.light-app .expense-vcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+.light-app .expense-vvalue{height:20px;font-size:8px;white-space:nowrap}
+.light-app .expense-vbar-wrap{height:135px;width:100%;max-width:34px;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(to top,rgba(20,30,50,.04) 1px,transparent 1px);background-size:100% 45px}
+.light-app .expense-vbar-wrap i{display:block;width:100%;min-height:2px;border-radius:5px 5px 0 0}
+.light-app .expense-vcol>span{display:block;width:100%;height:25px;padding-top:6px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px}
+
+/* Dashboard bottom row: same 3-column structure */
+.light-app #dashboard .bottom-row{display:grid!important;grid-template-columns:1.6fr .85fr .85fr!important;gap:10px!important;margin-top:10px!important;align-items:stretch!important;height:205px!important;min-height:205px!important;overflow:visible!important;grid-auto-flow:row!important}
+/* LIGHT DESKTOP FINAL OVERRIDE */
+@media(min-width:1101px){.light-app #dashboard .bottom-row{grid-template-columns:minmax(0,1.6fr) minmax(0,.85fr) minmax(0,.85fr)!important;grid-template-rows:205px!important;width:100%!important}.light-app #dashboard .bottom-row>.card{grid-row:1!important;width:100%!important;min-width:0!important;max-width:none!important}}
+@media(max-width:1100px) and (min-width:651px){.light-app #dashboard .bottom-row{grid-template-columns:1.4fr .8fr .8fr!important;grid-template-rows:205px!important}.light-app #dashboard .bottom-row>.card{grid-row:1!important}}
+.light-app #dashboard .bottom-row>.card{min-width:0!important;height:205px!important;min-height:205px!important;padding:14px!important;box-sizing:border-box!important;overflow:hidden!important}
+.light-app #dashboard .bottom-row .section-head{margin-bottom:7px!important}
+.light-app #dashboard .bottom-row .section-title{font-size:13px!important}
+.light-app #dashboard .bottom-row .link{font-size:8px!important}
+.light-app #dashboard .bottom-row .summary-list{gap:12px!important;margin-top:8px!important}
+.light-app #dashboard .bottom-row .summary-list>div{padding:9px 2px!important;display:flex!important;justify-content:space-between!important;align-items:center!important;font-size:10px!important;line-height:1.3!important}
+.light-app #dashboard .bottom-row .summary-list span{font-size:10px!important}
+.light-app #dashboard .bottom-row .summary-list b{font-size:11px!important;font-weight:800!important}
+.light-app #dashboard .bottom-row .empty{padding:25px 4px!important;font-size:8px!important}
+.light-app #dashboard .bottom-row .calendar-card{overflow:hidden!important}
+.light-app #dashboard .bottom-row .calendar-card .mini-calendar{margin-top:0!important}
+.light-app #dashboard .bottom-row .mini-cal-title{height:18px!important;margin:0 0 3px!important;font-size:8px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid{gap:2px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-head{padding:1px 0!important;font-size:6px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-day{min-height:19px!important;height:19px!important;padding:1px!important;box-sizing:border-box!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-day .d{font-size:7px!important}
+.light-app #dashboard .bottom-row .mini-cal-grid .cal-day .spent{font-size:4px!important}
+.light-app #dashboardCalendar{width:100%;margin-top:2px}
+.light-app .mini-cal-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;font-size:8px}
+.light-app .mini-cal-title b{font-size:8px}
+.light-app .mini-cal-title button{border:0;background:transparent;font-size:14px;padding:0 3px;cursor:pointer}
+.light-app .mini-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.light-app .mini-cal-grid .cal-head{text-align:center;font-size:6px;padding:2px 0}
+.light-app .mini-cal-grid .cal-day{min-height:23px!important;padding:2px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:4px;cursor:pointer}
+.light-app .mini-cal-grid .cal-day .d{font-size:7px!important}
+.light-app .mini-cal-grid .cal-day .spent{font-size:5px!important;line-height:1}
+.light-app #dashboardCalendar .cal-day .spent{display:none!important}.light-app #dashboardCalendar .cal-day .received{display:block!important;font-size:4px!important;line-height:1!important;color:var(--green)!important;margin-top:1px!important}
+
+/* Monthly trend exact sizing */
+.light-app #dashboard .trend-card{overflow:hidden!important}
+.light-app #dashboard .charts-row .trend-card{height:auto!important;min-height:280px!important;overflow:hidden!important}
+.light-app #dashboard .charts-row .trend-card .trend-chart{height:205px!important;min-height:205px!important;max-height:205px!important;overflow:hidden!important;display:flex!important;align-items:center!important}
+.light-app #dashboard .charts-row .trend-card .trend-bars{height:180px!important;max-height:180px!important;overflow:hidden!important}
+.light-app #dashboard .charts-row .trend-card .bars{height:145px!important;max-height:145px!important;overflow:hidden!important}
+.light-app #dashboard .trend-card .trend-bars{position:relative!important;padding-top:25px!important;display:flex!important;align-items:flex-end!important;gap:6px!important}
+.light-app #dashboard .trend-card .trend-legend{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;gap:12px;font-size:8px}
+.light-app #dashboard .trend-card .trend-legend span{display:inline-flex;align-items:center;gap:4px}
+.light-app #dashboard .trend-card .trend-legend i{display:inline-block;width:7px;height:7px;border-radius:2px}
+.light-app #dashboard .trend-card .trend-col{gap:3px!important}
+.light-app #dashboard .trend-card .bars{display:flex!important;align-items:flex-end!important;justify-content:center!important;gap:2px!important}
+.light-app #dashboard .trend-card .bars>i{width:9px!important;max-width:9px!important;border-radius:2px 2px 0 0!important;display:block!important}
+
+/* Light colors for every parity surface */
+.light-app #split .card,.light-app #dashboard .card,.light-app .card{color:#182238!important;background:#fff!important;border-color:#dce3ec!important}
+.light-app .section-title,.light-app #split .section-title,.light-app #dashboard .section-title,.light-app .top h1{color:#182238!important}
+.light-app .expense-bar-label span,.light-app .expense-bar-label b,.light-app .legend-row,.light-app .trend-legend,.light-app .trend-col span{color:#182238!important}
+.light-app .expense-bar-track,.light-app .bar{background:#edf0f5!important}
+.light-app .expense-y-axis,.light-app .expense-vcol>span,.light-app .trend-label,.light-app .mini-cal-grid .cal-head{color:#717c90!important}
+.light-app .expense-vvalue{color:#344054!important}
+.light-app .expense-vertical-bars{border-color:#dce3ec!important}
+.light-app .mini-cal-title{color:#344054!important}
+.light-app .mini-cal-title button{color:#59647a!important}
+.light-app .mini-cal-grid .cal-day{background:#f8f9fb!important;color:#182238!important}
+.light-app .mini-cal-grid .cal-day:hover{background:#eef5ff!important}
+.light-app .mini-cal-grid .cal-day.today{background:#08a878!important;color:#fff!important}
+.light-app #dashboardCalendar .cal-day.today{background:#08a878!important;color:#fff!important;border:1px solid #16d39b!important}
+.light-app .trend-card select,.light-app .chart-actions select{background:#fff!important;color:#182238!important;border-color:#dce3ec!important}
+.light-app .trend-grid{stroke:#dce3ec!important}
+.light-app .quote-card{background:#fff!important;border-color:#dce3ec!important;color:#182238!important}
+.light-app .quote-card b{color:#08a878!important}
+.light-app .mini-btn{background:#eef1f6!important;color:#4d5870!important}
+.light-app #split .note{background:#f4f6fa!important;color:#68748a!important}
+.light-app #split .table-wrap th{color:#717c90!important}
+.light-app #split .table-wrap td{border-color:#edf0f4!important}
+.light-app #split .btn.gray{background:#edf0f5!important;color:#394357!important}
+
+@media(max-width:1100px){
+ .light-app #split>.grid2{grid-template-columns:1fr!important}
+ .light-app #split>.grid2>.card:first-child{order:2!important}
+ .light-app #split>.grid2>.card:last-child{order:1!important}
+ .light-app #dashboard .bottom-row{grid-template-columns:1.4fr .8fr .8fr!important}
+ .light-app .charts-row,.light-app .bottom-row{grid-template-columns:1fr 1fr!important}
+ .light-app .recent-card{grid-column:1/-1!important}
+}
+@media(max-width:650px){
+ .light-app .modal{padding:14px!important}
+ .light-app .modalbox{padding:18px!important;border-radius:14px!important}
+ .light-app .modalbox .formgrid{grid-template-columns:1fr!important}
+ .light-app .modalbox .full{grid-column:auto!important}
+ .light-app #split>.grid2{grid-template-columns:1fr!important}
+ .light-app #dashboard .bottom-row{grid-template-columns:1fr!important}
+ .light-app #dashboard .bottom-row>.card{height:auto!important;min-height:150px!important}
+ .light-app .sidebar{width:260px!important}
+ .light-app .main{margin-left:0!important;width:100%!important;padding:15px!important}
+ .light-app .grid4.dashboard-metrics{grid-template-columns:1fr 1fr!important}
+ .light-app .charts-row,.light-app .dashboard-row:not(.charts-row),.light-app .bottom-row{grid-template-columns:1fr!important}
+ .light-app .recent-card{grid-column:auto!important}
+}
+</style><style id="light-mode-bottom-row-final-fix">
+/* FINAL: keep Dashboard bottom row identical to Dark Mode at desktop/tablet widths */
+.light-app #dashboard .bottom-row{display:grid!important;grid-template-columns:1.6fr .85fr .85fr!important;gap:10px!important;align-items:stretch!important;height:205px!important;min-height:205px!important;overflow:visible!important}
+.light-app #dashboard .bottom-row>.card{height:205px!important;min-height:205px!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important}
+@media(max-width:1100px) and (min-width:651px){
+  .light-app #dashboard .bottom-row{grid-template-columns:1.4fr .8fr .8fr!important}
+  .light-app #dashboard .bottom-row>.card{height:205px!important;min-height:205px!important}
+}
+@media(max-width:650px){
+  .light-app #dashboard .bottom-row{grid-template-columns:1fr!important;height:auto!important;min-height:0!important}
+  .light-app #dashboard .bottom-row>.card{height:auto!important;min-height:150px!important}
+}
+</style><style id="light-dashboard-exact-width-final">
+/* EXACT Dark Mode desktop proportions: Expenses 1.88x, Calendar 1x, Summary 1x */
+@media(min-width:1101px){
+  .light-app #dashboard .bottom-row{
+    display:grid!important;
+    grid-template-columns:1.88fr 1fr 1fr!important;
+    grid-template-rows:205px!important;
+    gap:10px!important;
+    width:100%!important;
+  }
+  .light-app #dashboard .bottom-row>.card:nth-child(1){grid-column:1!important;grid-row:1!important;width:auto!important}
+  .light-app #dashboard .bottom-row>.calendar-card{grid-column:2!important;grid-row:1!important;width:auto!important}
+  .light-app #dashboard .bottom-row>.card:nth-child(3){grid-column:3!important;grid-row:1!important;width:auto!important}
+}
+</style><script>
+(function(){
+  function syncLightDashboardLayout(){
+    var row=document.querySelector('#dashboard .bottom-row');
+    if(!row)return;
+    if(document.body.classList.contains('light-app') && window.innerWidth>1100){
+      row.style.setProperty('display','grid','important');
+      row.style.setProperty('grid-template-columns','1fr 1fr 1fr','important');
+      row.style.setProperty('grid-template-rows','205px','important');
+    }else if(window.innerWidth<=1100){
+      row.style.removeProperty('grid-template-columns');
+      row.style.removeProperty('grid-template-rows');
+    }
+  }
+  window.addEventListener('load',syncLightDashboardLayout);
+  window.addEventListener('resize',syncLightDashboardLayout);
+  if(window.MutationObserver){
+    new MutationObserver(syncLightDashboardLayout).observe(document.body,{attributes:true,attributeFilter:['class']});
+  }
+  setTimeout(syncLightDashboardLayout,100);
+  setTimeout(syncLightDashboardLayout,500);
+})();
+</script><style id="light-dashboard-typography-final">
+/* Match Dark Mode typography exactly; only colors differ */
+.light-app #dashboard .metric-inline .label{font-size:13px!important;line-height:1.25!important;font-weight:700!important}
+.light-app #dashboard .metric-inline .value{font-size:20px!important;line-height:1.1!important;margin:6px 0 3px!important;font-weight:900!important}
+.light-app #dashboard .metric-inline .muted{font-size:9px!important;line-height:1.35!important}
+.light-app #dashboard .metric .label{font-size:10px!important;line-height:1.2!important}
+.light-app #dashboard .metric .value{font-size:23px!important}
+.light-app #dashboard .metric .muted{font-size:8px!important}
+.light-app #dashboard .row b,.light-app #dashboard .amount{font-size:10px!important}
+.light-app #dashboard th{font-size:9px!important}
+.light-app #dashboard td{font-size:10px!important}
+.light-app #dashboard .summary-list>div{font-size:10px!important}
+.light-app #dashboard .summary-list>div b{font-size:11px!important}
+</style><style id="recent-transactions-final">
+.recent-transactions-card{padding:0!important;overflow:hidden}
+.recent-transactions-card .section-head{padding:16px 18px;margin:0;border-bottom:1px solid #edf0f4}
+.recent-transactions-wrap{overflow:auto}
+.recent-transactions-wrap table{width:100%;min-width:520px}
+.recent-transactions-wrap th,.recent-transactions-wrap td{padding:13px 18px}
+.recent-transactions-wrap th:nth-child(1),.recent-transactions-wrap td:nth-child(1){width:50%}
+.recent-transactions-wrap th:nth-child(2),.recent-transactions-wrap td:nth-child(2){width:25%}
+.recent-transactions-wrap th:nth-child(3),.recent-transactions-wrap td:nth-child(3){width:25%}
+@media(max-width:650px){.recent-transactions-card .section-head{padding:13px}.recent-transactions-wrap table{min-width:0}.recent-transactions-wrap th,.recent-transactions-wrap td{padding:11px 10px;font-size:10px}.recent-transactions-wrap th{font-size:9px}.undo-toast{font-size:11px;padding:10px 12px}}
+.dark-app .recent-transactions-card .section-head{border-color:#293848!important}
+</style><style id="dashboard-reference-final">
+#dashboard .dashboard-hero{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:14px 2px}
+#dashboard .dashboard-hero h1{font-size:25px;margin:0 0 5px;font-weight:900}
+#dashboard .dashboard-hero p{margin:0;color:#93a0b4;font-size:11px}
+#dashboard .hero-quote{font-size:10px;color:#9eabbc;font-style:italic}
+.dashboard-search{height:34px;min-width:255px;display:flex;align-items:center;gap:8px;padding:0 11px;border:1px solid #2b3b4d;border-radius:10px;background:#111a24}
+.dashboard-search span{font-size:18px;color:#8d9caf}.dashboard-search input{width:100%;border:0;outline:0;background:transparent;color:#eef4fb;font-size:10px}
+.top-icon-btn{position:relative;width:34px;height:34px;border-radius:10px;background:#111a24;border:1px solid #2b3b4d;color:#dfe7f1}.top-icon-btn i{position:absolute;width:7px;height:7px;background:#ff626b;border-radius:50%;right:6px;top:5px}
+.top-avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#365b95;color:#fff;font-weight:800;font-size:11px}
+#dashboard .dashboard-metrics .card{min-height:96px!important}
+#dashboard .dashboard-metrics .metric-icon{width:38px;height:38px;border-radius:12px;font-size:16px}
+#dashboard .dashboard-metrics .value{font-size:24px!important;margin:8px 0 3px!important}
+#dashboard .dashboard-metrics .metric:after{content:"";position:absolute;right:12px;bottom:13px;width:45px;height:22px;border-bottom:2px solid var(--metric-accent);border-radius:0 0 50% 50%;opacity:.9;transform:skewY(-16deg)}
+#dashboard .dash-tabs{display:flex;gap:3px;margin-top:7px}
+#dashboard .dash-tabs button{background:transparent;color:#93a0b4;border:1px solid transparent;border-radius:18px;padding:6px 9px;font-size:9px}
+#dashboard .dash-tabs button.active{border-color:#08d69a;color:#eef4fb;background:#102c2b}
+#dashboard .chart-more{width:30px;height:30px;border-radius:50%;background:#172331;color:#aeb9c7;border:1px solid #2b3b4d}
+#dashboard .bottom-row{grid-template-columns:repeat(3,1fr)!important}
+#dashboard .bottom-row>.card{min-height:300px!important;border-radius:16px!important}
+#dashboard .transaction-row{display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #253241;background:#101b26;border-radius:9px;margin:3px 0}
+#dashboard .transaction-icon{width:31px;height:31px;border-radius:9px}
+#dashboard .transaction-copy b{font-size:10px}.dashboard-hidden-data{display:none!important}
+#dashboard .insight-row{display:grid;grid-template-columns:105px 1fr 28px 43px;gap:7px;align-items:center;padding:9px 0;border-bottom:1px solid #253241;font-size:8px}
+#dashboard .insight-name{display:flex;align-items:center;gap:6px;min-width:0}
+#dashboard .insight-dot{width:20px;height:20px;border-radius:7px;display:grid;place-items:center;background:#172a3b}
+#dashboard .insight-track{height:7px;border-radius:10px;background:#243342;overflow:hidden}
+#dashboard .insight-track i{display:block;height:100%;border-radius:10px;background:#1677ed}
+#dashboard .insight-pct{text-align:right}.insight-row strong{text-align:right;font-size:9px}
+#dashboard .summary-compact{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+#dashboard .summary-compact>div{padding:10px 7px;border-radius:9px;background:#142432;border:1px solid #22384a;display:flex;flex-direction:column;gap:5px}
+#dashboard .summary-compact span{font-size:7px;color:#a6b2c1}.summary-compact b{font-size:13px}
+#dashboard .summary-extra{display:flex;gap:10px;flex-wrap:wrap;padding-top:10px;font-size:7px;color:#8e9caf}
+#dashboard .summary-extra b{color:#dfe7f1;margin-left:3px}
+#dashboard .summary-row{grid-template-columns:1fr!important}
+@media(max-width:1100px){.dashboard-search{min-width:190px}#dashboard .bottom-row{grid-template-columns:1.2fr 1fr!important}}
+@media(max-width:650px){.dashboard-search{min-width:0;width:100%}#dashboard .dashboard-hero{align-items:flex-start;flex-direction:column}#dashboard .dashboard-hero h1{font-size:20px}.hero-quote,.top-avatar,.top-icon-btn{display:none}#dashboard .bottom-row{grid-template-columns:1fr!important}#dashboard .summary-compact{grid-template-columns:1fr 1fr}}
+.light-app .dashboard-search{background:#fff;border-color:#dce3ec}.light-app .dashboard-search input{color:#182238}.light-app .top-icon-btn{background:#fff;border-color:#dce3ec;color:#344054}.light-app #dashboard .transaction-row{background:#f7f9fb;border-color:#e5e9ef}.light-app #dashboard .insight-row{border-color:#e5e9ef}.light-app #dashboard .insight-track{background:#e7edf3}.light-app #dashboard .summary-compact>div{background:#f5f8fa;border-color:#e0e7ee}.light-app #dashboard .summary-extra b{color:#344054}
+</style><style id="dashboard-final-layout-and-month-fix">.dark-app #dashboard .bottom-row{grid-template-columns:repeat(3,minmax(0,1fr))!important}.dark-app #dashboard .bottom-row>.card{min-width:0!important}</style><style id="dashboard-all-over-final-fix">
+#dashboard .monthly-summary-card{width:100%!important;min-width:0!important;margin-top:10px!important;box-sizing:border-box!important}
+#dashboard .summary-compact{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}
+#dashboard .summary-compact>div{min-width:0!important}
+@media(min-width:1101px){
+ #dashboard .bottom-row{display:grid!important;grid-template-columns:1.88fr 1fr 1fr!important;grid-template-rows:205px!important;gap:10px!important;height:205px!important;min-height:205px!important}
+ #dashboard .bottom-row>.card{height:205px!important;min-height:205px!important;overflow:hidden!important}
+}
+@media(max-width:1100px) and (min-width:651px){#dashboard .bottom-row{grid-template-columns:1.4fr .8fr .8fr!important;grid-template-rows:205px!important;height:205px!important}.light-app #dashboard .bottom-row{grid-template-columns:1.4fr .8fr .8fr!important}}
+@media(max-width:650px){#dashboard .bottom-row{grid-template-columns:1fr!important;height:auto!important;min-height:0!important}#dashboard .bottom-row>.card{height:auto!important;min-height:150px!important}#dashboard .summary-compact{grid-template-columns:1fr 1fr!important}}
+</style><style id="dashboard-calendar-visibility-fix">#dashboard .calendar-card #dashboardCalendar{display:block!important;visibility:visible!important;opacity:1!important;min-height:145px!important;height:auto!important;width:100%!important;position:relative!important;z-index:2!important}#dashboard .calendar-card .mini-cal-title{display:flex!important;align-items:center!important;justify-content:space-between!important;height:20px!important;margin:0 0 4px!important;color:#dfe7f1!important}#dashboard .calendar-card .mini-cal-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:2px!important;width:100%!important;visibility:visible!important;opacity:1!important}#dashboard .calendar-card .mini-cal-grid .cal-head,#dashboard .calendar-card .mini-cal-grid .cal-day{display:flex!important;visibility:visible!important;opacity:1!important}#dashboard .calendar-card .mini-cal-grid .cal-day{height:19px!important;min-height:19px!important}#dashboard .calendar-card .mini-cal-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;visibility:visible!important;opacity:1!important}#dashboard .calendar-card .mini-cal-grid .cal-head,#dashboard .calendar-card .mini-cal-grid .cal-day{visibility:visible!important;opacity:1!important}</style><style id="recent-transactions-width-final">@media(min-width:1101px){#dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}}@media(max-width:1100px) and (min-width:651px){#dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}}</style><style id="dashboard-bottom-equal-final">#dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}.dark-app #dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}.light-app #dashboard .bottom-row{grid-template-columns:1fr 1fr 1fr!important}@media(max-width:650px){#dashboard .bottom-row,#dashboard .bottom-row.grid,#dashboard .bottom-row.equal,.dark-app #dashboard .bottom-row,.light-app #dashboard .bottom-row{grid-template-columns:1fr!important;display:grid!important;gap:12px!important}.dark-app #dashboard .bottom-row>.card,.light-app #dashboard .bottom-row>.card,#dashboard .bottom-row>.card{width:100%!important;min-width:0!important;overflow:hidden!important}.dark-app #dashboard .recent-transactions,.dark-app #dashboard .calendar-card,.dark-app #dashboard .category-insights,.light-app #dashboard .recent-transactions,.light-app #dashboard .calendar-card,.light-app #dashboard .category-insights{min-width:0!important;width:100%!important}#dashboard .recent-transactions *{max-width:100%}#dashboard .recent-transactions .transaction-row,#dashboard .recent-transactions .recent-item{min-width:0!important}#dashboard .recent-transactions .transaction-row>*,#dashboard .recent-transactions .recent-item>*{min-width:0!important}.dark-app #dashboard .category-insights .insight-row,.light-app #dashboard .category-insights .insight-row{min-width:0!important}.dark-app #dashboard .monthly-summary,.light-app #dashboard .monthly-summary{grid-template-columns:1fr!important}}</style><style id="mobile-dark-dashboard-final-fix">
+@media(max-width:650px){
+  .dark-app #dashboard .bottom-row{display:grid!important;grid-template-columns:1fr!important;grid-template-rows:auto!important;height:auto!important;min-height:0!important;gap:12px!important;overflow:visible!important}
+  .dark-app #dashboard .bottom-row>.card{height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden!important;box-sizing:border-box!important}
+  .dark-app #dashboard .bottom-row>.calendar-card{min-height:255px!important;height:auto!important}
+  .dark-app #dashboard .calendar-card #dashboardCalendar{min-height:210px!important;height:auto!important;overflow:visible!important}
+  .dark-app #dashboard .calendar-card .mini-cal-grid{height:auto!important;min-height:175px!important}
+  .dark-app #dashboard .monthly-summary-card{height:auto!important;min-height:0!important;margin-top:0!important}
+  .dark-app #dashboard .summary-compact{grid-template-columns:1fr 1fr!important}
+  .dark-app #dashboard .summary-compact>div{min-width:0!important}
+  .dark-app #dashboard .section-head{margin-bottom:10px!important}
+}
+<style>.sync-status{display:inline-flex;align-items:center;gap:6px;margin:10px 0 12px;padding:7px 9px;border-radius:8px;background:#eef8f4;color:#087a5a;font-size:10px;font-weight:800}.sync-status-dot{font-size:9px}.sync-status[data-state="syncing"]{background:#fff7e8;color:#9a6500}.sync-status[data-state="error"]{background:#fff1f2;color:#b4232f}.dark-app .sync-status{background:#102c2b;color:#08d69a}.dark-app .sync-status[data-state="syncing"]{background:#302817;color:#ffd166}.dark-app .sync-status[data-state="error"]{background:#351b21;color:#ff7b86}</style><script id="cloud-local-recovery-sync">
+  async function syncCurrentDataToCloud(showMessage=true){try{const keys=["money","expenses","borrow","savings","splits","splitGroups","categories"],clean={};keys.forEach(function(k){clean[k]=Array.isArray(data?.[k])?data[k]:[]});if(!keys.some(function(k){return clean[k].length>0})){if(showMessage)alert("There is no tracker data to sync.");return false}const clientUpdatedAt=localStorage.getItem("myExpensesCloudUpdatedAt")||localStorage.getItem("myExpensesDataSavedAt")||"";const r=await fetch("/api/data",{method:"PUT",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({...clean,clientUpdatedAt})});if(!r.ok)throw Error("sync:"+r.status);const saved=await r.json();data=clean;localStorage.setItem("myExpensesData",JSON.stringify(data));localStorage.setItem("myExpensesDataSavedAt",String(saved?.updatedAt?new Date(saved.updatedAt).getTime():Date.now()));if(saved?.updatedAt)localStorage.setItem("myExpensesCloudUpdatedAt",String(new Date(saved.updatedAt).getTime()));cloudReady=true;if(showMessage)alert("Data synced to cloud successfully.");return true}catch(e){console.warn("Manual cloud sync failed:",e);if(showMessage)alert("Cloud sync failed. Please try again.");return false}}
+(function(){
+  try{
+    var raw=localStorage.getItem("myExpensesData");
+    if(!raw)return;
+    var localData=JSON.parse(raw);
+    if(!localData||typeof localData!=="object")return;
+    var hasData=["money","expenses","borrow","savings","splits","splitGroups"].some(function(k){
+      return Array.isArray(localData[k])&&localData[k].length>0;
+    });
+    if(!hasData)return;
+    fetch("/api/data",{method:"GET",credentials:"include"})
+      .then(function(r){return r.ok?r.json():null})
+      .then(function(remote){
+        if(!remote||!remote.data)return;
+        var d=remote.data;
+        var remoteHas=["money","expenses","borrow","savings","splits","splitGroups"].some(function(k){
+          return Array.isArray(d[k])&&d[k].length>0;
+        });
+        if(remoteHas)return;
+        return fetch("/api/data",{
+          method:"PUT",
+          credentials:"include",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify(localData)
+        });
+      })
+      .catch(function(e){console.warn("Cloud recovery sync skipped:",e)});
+  }catch(e){console.warn("Cloud recovery sync skipped:",e)}
+})();
+</script><style>
+.profile-name-modal{position:fixed;inset:0;background:rgba(3,9,16,.78);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:20px;z-index:2147483000}
+.profile-name-modal.show{display:flex}
+.profile-name-card{width:min(430px,100%);background:#111a24;color:#eef4fb;border:1px solid #2b3b4d;border-radius:18px;padding:28px;box-shadow:0 25px 70px rgba(0,0,0,.55);text-align:center}
+.profile-name-icon{font-size:34px;margin-bottom:8px}
+.profile-name-card h3{margin:0 0 8px;font-size:21px}
+.profile-name-card p{margin:0 0 18px;color:#8c9aad;font-size:13px}
+.profile-name-card input{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #304154;background:#0d1721;color:#eef4fb;outline:0;margin-bottom:12px}
+.profile-name-card input:focus{border-color:#1677ed;box-shadow:0 0 0 2px rgba(22,119,237,.18)}
+.profile-name-card .btn{width:100%;padding:12px}
+</style><div class="profile-name-modal" id="profileNameModal" aria-hidden="true"><div class="profile-name-card"><div class="profile-name-icon">👋</div><h3>Welcome to My Expenses</h3><p>What should we call you?</p><input id="profileNameInput" type="text" maxlength="80" placeholder="Enter your name" autocomplete="name"><button class="btn" type="button" id="profileNameSave">Continue</button></div></div><script>async function askForDisplayName(){return new Promise(resolve=>{const m=document.getElementById("profileNameModal"),i=document.getElementById("profileNameInput"),b=document.getElementById("profileNameSave");if(!m||!i||!b){resolve("");return}const finish=()=>{const n=i.value.trim();if(!n){i.focus();return}m.classList.remove("show");m.setAttribute("aria-hidden","true");resolve(n)};b.onclick=finish;i.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();finish()}};m.classList.add("show");m.setAttribute("aria-hidden","false");setTimeout(()=>i.focus(),50)})}</script></body></html>
 .light-app .icon{width:30px!important;height:30px!important}
 .light-app .empty{padding:28px 8px!important;font-size:10px!important}
 .light-app .summary-list>div{padding:9px 2px!important;font-size:9px!important}
